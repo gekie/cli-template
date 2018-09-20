@@ -39,7 +39,7 @@
 ### 相关运行截图，基于该模板开发的Xjj BigData Shell Tools
     启动界面
     ![](doc/startup.png)
-
+    ![wx](doc/weixin.jpg)
     帮助指令
     ![](doc/help.png)
     
