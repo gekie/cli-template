@@ -1,9 +1,9 @@
 # 说明
     该工具用于快速创建java控制台Application，省去用输入与指令的解析，让开发者把时间放在业务上
     将Java注解式、反射机制编程应用到极致
-    原本可以使用Spring Shell实现，前期用Spring Shell开发Xjj BigData Shell Tools到一半时发现，Spring Shell并不能真正适合用于特定命令行指令，
-    比如执行一些SQL，用户可能会换行输入、多行输入，并能合并解析到这是条SQL指令
-    所以，又重新自主开发了这一套
+    原本可以使用Spring Shell实现，前期用Spring Shell开发Xjj BigData Shell Tools到一半时发现，
+    Spring Shell并不能真正适合用于特定命令行指令，比如执行一些SQL，用户可能会换行输入、
+    多行输入，并能合并解析到这是条SQL指令,所以，又重新自主开发了这一套
 
     通过@CliCompent来设置某个类为Shell Client指令类，工具在运行时会自动扫描到，并通过反射机制映射到运行空间中
     通过@CliMethod来设置某个方法为Shell 指令，同时可以设置在执行该方法前是否要检查登录传话（checkSession=true），默认为true
