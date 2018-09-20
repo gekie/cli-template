@@ -10,7 +10,8 @@
     通过@AutoSetValue来设置运行时动态注入属性，比如动态注入用户正在输入的行文本
 
     欢迎各位一起加入和完善更多的功能，让Console App开发更加简便和强大
-###代码目录结构
+### 代码目录结构
+
     .
     ├── README.MD
     ├── bin （各平台运行脚本）
@@ -38,10 +39,10 @@
     通过修改配置shell_commands_package让工具自动扫描加载映射@CliCompent和@CliMethod指令
 ### 相关运行截图，基于该模板开发的Xjj BigData Shell Tools
     启动界面
-    ![启动界面](doc/startup.png)
+    ![](doc/startup.png)
 
     帮助指令
-    ![帮助](doc/help.png)
+    ![](doc/help.png)
     
     Shell命令行指令实现
-    ![实现](doc/command.png)
+    ![](doc/command.png)
