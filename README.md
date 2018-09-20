@@ -10,7 +10,6 @@
     通过@AutoSetValue来设置运行时动态注入属性，比如动态注入用户正在输入的行文本
 
     欢迎各位一起加入和完善更多的功能，让Console App开发更加简便和强大
-
 ###代码目录结构
     .
     ├── README.MD
@@ -24,7 +23,6 @@
     │   ├── main
     │   ├── test
     ├── xjj-bigdata-tool.iml (IDEA项目工程)
-
 ### 快速获取Cli Tools Template项目，编译运行
 
     git clone http://192.168.0.66/cjh/cli-tools-template.git
@@ -32,20 +30,18 @@
     mvn package
     cd ./bin/
     ./startup.sh
-
 ### 配置自动登录到大数据平台
     cd cli-tools-template/conf
     vim ./config.properties
 
     修改account和password为自己OA帐号
     通过修改配置shell_commands_package让工具自动扫描加载映射@CliCompent和@CliMethod指令
-
 ### 相关运行截图，基于该模板开发的Xjj BigData Shell Tools
     启动界面
     ![启动界面](doc/startup.png)
 
     帮助指令
     ![帮助](doc/help.png)
-
+    
     Shell命令行指令实现
     ![实现](doc/command.png)
