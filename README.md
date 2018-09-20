@@ -27,7 +27,7 @@
 
     git clone http://192.168.0.66/cjh/cli-tools-template.git
     cd cli-tools-template
-    mvn package
+    mvn clean package
     cd ./bin/
     ./startup.sh
 ### 配置自动登录到大数据平台
