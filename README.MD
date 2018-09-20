@@ -16,14 +16,14 @@
     ├── README.MD
     ├── bin （各平台运行脚本）
     │   ├── startup.bat (Windows平台运行脚本)
-    │   └── startup.sh  (linux或Mac平台运行脚本)
+    │   ├── startup.sh  (linux或Mac平台运行脚本)
     ├── conf
-    │   └── config.properties (工具配置文件)
+    │   ├── config.properties (工具配置文件)
     ├── pom.xml (maven配置)
     ├── src (源码)
     │   ├── main
-    │   └── test
-    └── xjj-bigdata-tool.iml (IDEA项目工程)
+    │   ├── test
+    ├── xjj-bigdata-tool.iml (IDEA项目工程)
 
 ### 快速获取Cli Tools Template项目，编译运行
 
