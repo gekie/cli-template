@@ -583,7 +583,6 @@ public class RESTfulAgent {
     public JSONObject loadObject(String url,PostParam pm){
         try{
             String content = doPost(url,pm);
-            System.out.println(content);
             JSONObject obj = new JSONObject(content);
             return obj;
         }catch(DoPostException ex){
@@ -597,6 +596,9 @@ public class RESTfulAgent {
      * 同步调用
      */
     public String doPost(String url, String jsonParam) throws DoPostException {
+        return doPost(url,jsonParam,null);
+    }
+    public String doPost(String url, String jsonParam,PostParam header) throws DoPostException {
         HttpURLConnection conn = null;
         URL _url = null;
         OutputStreamWriter out = null;
@@ -618,6 +620,9 @@ public class RESTfulAgent {
             }
             if(GlobalValue.sessionId!=null){
                 conn.addRequestProperty("Cookie", GlobalValue.sessionId);
+            }
+            if(header!=null){
+
             }
             conn.setUseCaches(false);
             out = new OutputStreamWriter(conn.getOutputStream(), "UTF-8"); // utf-8编码

@@ -101,4 +101,8 @@ public class PostParam implements Serializable {
     public boolean isZip() {
         return zip;
     }
+
+    public HashMap<String, Object> getParam(){
+        return param;
+    }
 }
