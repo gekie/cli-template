@@ -1,0 +1,6 @@
+libs/
+target/
+.idea
+.DS_Store
+*.zip
+*.class
