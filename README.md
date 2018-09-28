@@ -24,12 +24,12 @@
     │   └── test
     └── xjj-bigdata-tool.iml (IDEA项目工程)
 ### 快速获取Cli Tools Template项目，编译运行
+    git clone https://github.com/gekie/cli-template.git
+    cd cli-template
+    mvn clean package
+    cd ./bin/
+    ./startup.sh
 
-   git clone https://github.com/gekie/cli-template.git
-   cd cli-template
-   mvn clean package
-   cd ./bin/
-   ./startup.sh
 ### 配置自动登录到大数据平台
     cd cli-template/conf
     vim ./config.properties
