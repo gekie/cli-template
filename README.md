@@ -25,15 +25,16 @@
     └── xjj-bigdata-tool.iml (IDEA项目工程)
 ### 快速获取Cli Tools Template项目，编译运行
 
-    git clone http://192.168.0.66/cjh/cli-tools-template.git
-    cd cli-tools-template
-    mvn clean package
-    cd ./bin/
-    ./startup.sh
+   git clone https://github.com/gekie/cli-template.git
+   cd cli-template
+   mvn clean package
+   cd ./bin/
+   ./startup.sh
 ### 配置自动登录到大数据平台
-    cd cli-tools-template/conf
+    cd cli-template/conf
     vim ./config.properties
 
+    本例以本人公司内部OA系统服务作为登录认证
     修改account和password为自己OA帐号
     通过修改配置shell_commands_package让工具自动扫描加载映射@CliCompent和@CliMethod指令
 ### 相关运行截图，基于该模板开发的Xjj BigData Shell Tools
