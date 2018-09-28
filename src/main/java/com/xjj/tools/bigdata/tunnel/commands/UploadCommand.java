@@ -137,6 +137,7 @@ public class UploadCommand extends BaseCommand {
                 return true;
             }
             JSONObject result = RESTfulAgent.getInstance().loadObject("",json);
+            return true;
         }
     }
 }

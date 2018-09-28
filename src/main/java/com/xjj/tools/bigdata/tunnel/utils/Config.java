@@ -13,9 +13,9 @@ public class Config {
         try {
             File directory = new File("");//设定为当前文件夹
             String path = directory.getAbsolutePath();
-            if(path.indexOf("/bin")!=-1)
-                path = path+"/..";
-            InputStream inputStream = new BufferedInputStream(new FileInputStream(new File(path+"/conf/config.properties"))); //方法1
+            if(path.indexOf(File.separator+"bin")!=-1)
+                path = path+File.separator+"..";
+            InputStream inputStream = new BufferedInputStream(new FileInputStream(new File(path+File.separator+"conf"+File.separator+"config.properties"))); //方法1
             prop = new Properties();
             prop.load(new InputStreamReader(inputStream, "UTF-8")); //加载格式化后的流
         }catch (IOException ex){
