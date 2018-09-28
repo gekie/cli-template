@@ -596,9 +596,9 @@ public class RESTfulAgent {
      * 同步调用
      */
     public String doPost(String url, String jsonParam) throws DoPostException {
-        return doPost(url,jsonParam,null);
+        return doPostForHeader(url,jsonParam,null);
     }
-    public String doPost(String url, String jsonParam,PostParam header) throws DoPostException {
+    public String doPostForHeader(String url, String jsonParam,PostParam header) throws DoPostException {
         HttpURLConnection conn = null;
         URL _url = null;
         OutputStreamWriter out = null;
