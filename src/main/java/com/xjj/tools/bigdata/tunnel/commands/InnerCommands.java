@@ -155,7 +155,9 @@ public class InnerCommands extends BaseCommand{
                 print(entry.getKey(), Ansi.Color.CYAN);
                 Parameter[] ps = bean.getMethod().getParameters();
                 for (int i = 0; i < ps.length; i++) {
-                    print(" <" + ps[i].getName() + ">", Ansi.Color.GREEN);
+                    print(" "+ps[i].getName(), Ansi.Color.YELLOW);
+                    print(":");
+                    print("<" + ps[i].getName() + ">", Ansi.Color.GREEN);
                 }
                 println("\r\n\t" + bean.getCliMethod().description());
             }

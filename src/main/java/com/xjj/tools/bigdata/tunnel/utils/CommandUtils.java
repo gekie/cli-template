@@ -79,7 +79,7 @@ public class CommandUtils {
 
         String[] pm= input.toUpperCase().split(" ");
         String cmd = pm[0];
-        String sqlStart = "SELECT;CREATE;DELETE;UPSERT;INSERT;UPDATE;DROP;";
+        String sqlStart = "SELECT;DELETE;UPSERT;INSERT;";
         return sqlStart.indexOf(cmd+";")!=-1;
     }
     public static String getShellPrompt(boolean moreLine){
@@ -109,7 +109,15 @@ public class CommandUtils {
                     if (line.trim().endsWith(";")) {
                         String commandStr = stringBuf.toString();
                         inputLine = commandStr;
-                        System.out.println(commandStr);
+                        //System.out.println(commandStr);
+                        long intime = System.currentTimeMillis();
+                        if(commandStr.toUpperCase().startsWith("SELECT"))
+                            callMethod("selectSQL",new String[]{commandStr});
+                        else if(commandStr.toUpperCase().startsWith("CREATE"))
+                            callMethod("createSQL",new String[]{commandStr});
+                        long outtime = System.currentTimeMillis();
+                        System.out.println("--------------------");
+                        System.out.println("SQL Execute use "+(outtime-intime)+"ms.");
                         // 清空
                         stringBuf = new StringBuilder();
                         moreLine = false;

@@ -36,4 +36,7 @@ public class BaseCommand {
     protected void yellow(Object text){
         println(text, Ansi.Color.YELLOW);
     }
+    protected void red(Object text){
+        println(text, Ansi.Color.RED);
+    }
 }
