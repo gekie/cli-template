@@ -4,13 +4,14 @@ package com.xjj.tools.bigdata.tunnel;
 import com.xjj.tools.bigdata.tunnel.utils.CommandUtils;
 import com.xjj.tools.bigdata.tunnel.utils.Config;
 import org.fusesource.jansi.Ansi;
+import org.fusesource.jansi.AnsiConsole;
 
 /**
  * Created by admin on 2018/9/19.
  */
 public class ConsoleMain {
     public static void main(String[] args) throws Exception{
-        //AnsiConsole.systemInstall();
+        AnsiConsole.systemInstall();
         printWellcome();
         CommandUtils.getInstance().initCommandClass();
         String account = Config.getInstance().getString("account");
@@ -28,7 +29,7 @@ public class ConsoleMain {
         System.out.print(Ansi.ansi().reset().a(""));
     }
     private static void printWellcome(){
-        setFgColor(Ansi.Color.YELLOW);
+		setFgColor(Ansi.Color.YELLOW);
         System.out.println("=======================================");
         System.out.println("*                                     *");
         System.out.println("*       Xjj BigData Shell Tools       *");
