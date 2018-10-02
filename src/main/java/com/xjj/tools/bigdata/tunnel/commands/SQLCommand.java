@@ -1,9 +1,6 @@
 package com.xjj.tools.bigdata.tunnel.commands;
 
-import com.xjj.tools.bigdata.tunnel.utils.Func;
-import com.xjj.tools.bigdata.tunnel.utils.GlobalValue;
-import com.xjj.tools.bigdata.tunnel.utils.PostParam;
-import com.xjj.tools.bigdata.tunnel.utils.RESTfulAgent;
+import com.xjj.tools.bigdata.tunnel.utils.*;
 import org.fusesource.jansi.Ansi;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -19,7 +16,7 @@ import java.util.regex.Pattern;
  */
 @CliCompent
 public class SQLCommand extends BaseCommand{
-    @CliMethod(description = "执行SQL入口",show = false)
+    //@CliMethod(description = "执行SQL入口",show = false)
     public boolean selectSQL(String sql){
         if(Func.isEmpty(sql)){
             return false;
@@ -33,7 +30,9 @@ public class SQLCommand extends BaseCommand{
         PostParam pm = new PostParam();
         pm.addParam("sql",sql);
         pm.addParam("appid", GlobalValue.appid);
-        JSONObject result = RESTfulAgent.getInstance().loadObject(GlobalValue.QUERY_SQL_API,pm);
+        //JSONObject result = RESTfulAgent.getInstance().loadObject(GlobalValue.QUERY_SQL_API,pm);
+        String api = "http://202.100.241.122:9096/xxd/queryBySQL";
+        JSONObject result = RESTfulAgent.getInstance().loadObject(api,pm);
         int errorCode = result.getInt("errorCode");
         if(errorCode==0){
             JSONArray items = result.getJSONArray("items");
@@ -139,7 +138,79 @@ public class SQLCommand extends BaseCommand{
         }
         return true;
     }
+    @CliMethod(description = "执行SQL入口",show=false,checkSession = false)
+    public boolean querySQL(String sql){
+        if(Func.isEmpty(sql)){
+            return false;
+        }
+        /*
+        if(Func.isEmpty(GlobalValue.appid)){
+            red("您还没进入项目空间，请使用 use <appid>进入项目空间");
+            return false;
+        }*/
+        sql = sql.replaceAll(";","");
+        PostParam pm = new PostParam();
+        pm.addParam("sql",sql);
+        pm.addParam("appid", GlobalValue.appid);
+        //JSONObject result = RESTfulAgent.getInstance().loadObject(GlobalValue.QUERY_SQL_API,pm);
+        String api = "http://202.100.241.122:9096/xxd/queryBySQL";
+        JSONObject result = RESTfulAgent.getInstance().loadObject(api,pm);
+        int errorCode = result.getInt("errorCode");
+        if(errorCode==0){
+            JSONArray items = result.getJSONArray("items");
+            if(items.length()==0){
+                println("没有数据.");
+            }
+            boolean printHead = false;
+            List<JSONObject> heads = getFields(sql);
+            if(items.length()>0){
+                ConsoleTable table = getConsoleTable(heads,items.getJSONObject(0));
+                int count = items.length();
+                for(int i = 0;i<items.length();i++){
+                    JSONObject item = items.getJSONObject(i);
+                    table.appendRow();
+                    if(heads==null) {
+                        Iterator<String> keys = item.keys();
+                        while (keys.hasNext()) {
+                            String key = keys.next();
+                            table.appendColum(item.get(key));
+                        }
+                    }else{
+                        for(JSONObject obj:heads){
+                            String key = obj.getString("field").toUpperCase();
+                            table.appendColum(item.get(key));
+                        }
+                    }
+                }
+                yellow(table.toString());
+            }else{
+                red("没有记录");
+            }
 
+        }else{
+            red(result.getString("message"));
+        }
+        return true;
+    }
+    private ConsoleTable getConsoleTable(List<JSONObject> heads,JSONObject item){
+        ConsoleTable table = null;
+        if(heads!=null){
+            table = new ConsoleTable(heads.size(),false,10);
+            table.appendRow();
+            for(JSONObject obj:heads){
+                String field = obj.getString("field");
+                table.appendColum(field);
+            }
+        }else{
+            table = new ConsoleTable(item.keySet().size(),false,10);
+            table.appendRow();
+            Iterator<String> keys = item.keys();
+            while(keys.hasNext()){
+                table.appendColum(keys.next());
+            }
+        }
+        return table;
+    }
     @CliMethod(description = "执行SQL入口",show = false)
     public boolean createSQL(String sql){
         String _sql= sql.toLowerCase();

@@ -87,8 +87,10 @@ public class CommandUtils {
         if(!moreLine)
             return Ansi.ansi().eraseLine().render(prompt+">").toString();
         else{
-            prompt= prompt.replaceAll("."," ");
-            return Ansi.ansi().eraseLine().render(prompt+">").toString();
+            prompt = "[xjj-bigdata@"+GlobalValue.userName+":";
+            prompt= prompt.replaceAll(".",".");
+            //return Ansi.ansi().eraseLine().render(prompt+">").toString();
+            return prompt+">";
         }
     }
     public void listenInput(String[] args){
@@ -112,7 +114,7 @@ public class CommandUtils {
                         //System.out.println(commandStr);
                         long intime = System.currentTimeMillis();
                         if(commandStr.toUpperCase().startsWith("SELECT"))
-                            callMethod("selectSQL",new String[]{commandStr});
+                            callMethod("querySQL",new String[]{commandStr});
                         else if(commandStr.toUpperCase().startsWith("CREATE"))
                             callMethod("createSQL",new String[]{commandStr});
                         long outtime = System.currentTimeMillis();
