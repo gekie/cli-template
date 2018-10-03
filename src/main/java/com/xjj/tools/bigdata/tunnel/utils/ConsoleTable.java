@@ -25,6 +25,9 @@ public class ConsoleTable {
         this(colum,printHeader);
         this.maxRowCount = maxRowCount;
     }
+    public void setMaxRowCount(int limit){
+        this.maxRowCount = limit;
+    }
 
     public void appendRow() {
         List row = new ArrayList(colum);

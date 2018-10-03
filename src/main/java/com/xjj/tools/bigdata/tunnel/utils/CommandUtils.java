@@ -179,21 +179,39 @@ public class CommandUtils {
                 Object[] ps = new Object[psCount];
                 //注入方法参数
                 for(int i = 0;i<psCount;i++){
+                    String type = parameters[i].getType().getName();
                     try {
-                        String type = parameters[i].getType().getName();
-                        if (type.equals("int") || type.equals("java.lang.Integer")) {
-                            ps[i] = Integer.parseInt(cmds[i + 1]);
-                        } else if (type.equals("long") || type.equals("java.lang.Long")) {
-                            ps[i] = Long.parseLong(cmds[i + 1]);
-                        } else if (type.equals("float") || type.equals("java.lang.Float")) {
-                            ps[i] = Float.parseFloat(cmds[i + 1]);
-                        } else if (type.equals("boolean") || type.equals("java.lang.Boolean")) {
-                            ps[i] = Boolean.parseBoolean(cmds[i + 1]);
-                        } else {
-                            ps[i] = cmds[i + 1];
+                        String cmd = cmds[i+1];
+                        if(cmd.indexOf(":")!=-1) {
+                            String[] cvs = cmd.split(":");
+                            if (parameters[i].getName().toLowerCase().equals(cvs[0].toLowerCase())) {
+                                cmd = cvs[1];
+                            } else {
+                                continue;
+                            }
                         }
-                    }catch (Exception ex){}
+                        if (type.equals("int") || type.equals("java.lang.Integer")) {
+                            ps[i] = Integer.parseInt(cmd);
+                        } else if (type.equals("long") || type.equals("java.lang.Long")) {
+                            ps[i] = Long.parseLong(cmd);
+                        } else if (type.equals("float") || type.equals("java.lang.Float")) {
+                            ps[i] = Float.parseFloat(cmd);
+                        } else if (type.equals("boolean") || type.equals("java.lang.Boolean")) {
+                            ps[i] = Boolean.parseBoolean(cmd);
+                        } else {
+                            ps[i] = cmd;
+                        }
+                    }catch (Exception ex){
+                        ps[i] = initNormalValue(type);
+                    }
                 }
+                for(String cmd:cmds){
+                    if(cmd.indexOf(":")!=-1){
+                        String[] cvs = cmd.split(":");
+                        setMethodParameter(parameters,ps,cvs[0],cvs[1]);
+                    }
+                }
+                System.out.println(ps.length);
                 //动态注入相关属性
                 for(Field fd :bean.getAutoSetFields()) {
                     if (fd.getName().equals("inputLine")) {
@@ -250,6 +268,38 @@ public class CommandUtils {
             }
         }else{
             System.err.println("Not Found Command for '"+method+"'.");
+        }
+    }
+    private void setMethodParameter(Parameter[] pms,Object[] ps,String pname,String pvalue){
+        for(int i=0;i<ps.length;i++){
+            String name = pms[i].getName().toLowerCase();
+            if(name.equals(pname.toLowerCase())){
+                String type = pms[i].getType().getName();
+                if (type.equals("int") || type.equals("java.lang.Integer")) {
+                    ps[i] = Integer.parseInt(pvalue);
+                } else if (type.equals("long") || type.equals("java.lang.Long")) {
+                    ps[i] = Long.parseLong(pvalue);
+                } else if (type.equals("float") || type.equals("java.lang.Float")) {
+                    ps[i] = Float.parseFloat(pvalue);
+                } else if (type.equals("boolean") || type.equals("java.lang.Boolean")) {
+                    ps[i] = Boolean.parseBoolean(pvalue);
+                } else {
+                    ps[i] =pvalue;
+                }
+            }
+        }
+    }
+    private Object initNormalValue(String type){
+        if (type.equals("int") || type.equals("java.lang.Integer")) {
+            return new Integer(0);
+        } else if (type.equals("long") || type.equals("java.lang.Long")) {
+            return new Long(0);
+        } else if (type.equals("float") || type.equals("java.lang.Float")) {
+            return new Float(0.0);
+        } else if (type.equals("boolean") || type.equals("java.lang.Boolean")) {
+            return new Boolean(false);
+        } else {
+            return null;
         }
     }
 }
