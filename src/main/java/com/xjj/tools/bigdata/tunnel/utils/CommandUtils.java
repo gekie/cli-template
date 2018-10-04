@@ -2,9 +2,16 @@ package com.xjj.tools.bigdata.tunnel.utils;
 
 import com.xjj.tools.bigdata.tunnel.commands.*;
 import jline.console.ConsoleReader;
+import jline.console.completer.ArgumentCompleter;
+import jline.console.completer.Completer;
+import jline.console.completer.FileNameCompleter;
+import jline.console.completer.StringsCompleter;
+import jline.console.history.FileHistory;
+import jline.console.history.History;
 import org.fusesource.jansi.Ansi;
 import org.reflections.Reflections;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -93,9 +100,26 @@ public class CommandUtils {
             return prompt+">";
         }
     }
+    private void initCompletor(ConsoleReader reader){
+        List<Completer> completors = new ArrayList<Completer>();
+
+        Iterator<String> keys = mapp.keySet().iterator();
+        String[] arrs = new String[mapp.size()];
+        int i = 0;
+        while(keys.hasNext()){
+            arrs[i++] = keys.next();
+        }
+        completors.add(new StringsCompleter(arrs));
+        completors.add(new FileNameCompleter());
+        reader.addCompleter(new ArgumentCompleter(completors));
+    }
     public void listenInput(String[] args){
         try {
+            GlobalValue.init();
             ConsoleReader reader = new ConsoleReader();
+            FileHistory history = new FileHistory(new File(GlobalValue.COMMAND_HISTORY_FILE));
+            reader.setHistory(history);
+            initCompletor(reader);
             String line = null;
             boolean moreLine = false;
             boolean isSQLLine = false;
@@ -124,6 +148,7 @@ public class CommandUtils {
                         stringBuf = new StringBuilder();
                         moreLine = false;
                         isSQLLine = false;
+                        history.flush();
                     } else {
                         moreLine = true;
                     }
@@ -133,8 +158,10 @@ public class CommandUtils {
                     callMethod(line);
                     moreLine = false;
                     stringBuf = new StringBuilder();
+                    history.flush();
                 }
             }while(line!=null && !line.equals("exit"));
+            history.flush();
             System.exit(0);
         }catch (Exception ex){
             ex.printStackTrace();
@@ -211,7 +238,6 @@ public class CommandUtils {
                         setMethodParameter(parameters,ps,cvs[0],cvs[1]);
                     }
                 }
-                System.out.println(ps.length);
                 //动态注入相关属性
                 for(Field fd :bean.getAutoSetFields()) {
                     if (fd.getName().equals("inputLine")) {

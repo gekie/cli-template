@@ -21,6 +21,7 @@ public class ConsoleMain {
             CommandUtils.getInstance().callMethod("list",null);
         }
         CommandUtils.getInstance().listenInput(args);
+        System.out.println("exit Console.");
     }
     private static void setFgColor(Ansi.Color color){
         System.out.print(Ansi.ansi().eraseLine().fg(color).a(""));

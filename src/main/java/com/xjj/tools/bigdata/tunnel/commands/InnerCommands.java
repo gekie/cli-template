@@ -5,6 +5,9 @@ import org.fusesource.jansi.Ansi;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.lang.reflect.Parameter;
 import java.util.HashMap;
 import java.util.Map;
@@ -191,6 +194,38 @@ public class InnerCommands extends BaseCommand{
         }else{
             err(obj.getString("message"));
         }
+    }
+    @CliMethod(description = "测试使意位置传参",checkSession = false)
+    public boolean test(String name,String sex,String job,String hobby,String mobile) {
+        yellow("=================================");
+        yellow("*                               *");
+        yellow("*    测试使用随意位置传参          *");
+        yellow("*                               *");
+        yellow("=================================");
+        yellow("name:"+name);
+        yellow("sex:"+sex);
+        yellow("job:"+job);
+        yellow("hobby:"+hobby);
+        yellow("mobile:"+mobile);
+        return true;
+    }
+
+    @CliMethod(description = "输入历史列表",checkSession = false)
+    public boolean history(){
+        try {
+            FileReader m = new FileReader(new File(GlobalValue.COMMAND_HISTORY_FILE));
+            BufferedReader bf = new BufferedReader(m);
+            String line = bf.readLine();
+            int i = 1;
+            while(line!=null){
+                yellow(i+"  "+line);
+                line = bf.readLine();
+                i++;
+            }
+        }catch (Exception ex){
+            red("没有记录");
+        }
+        return true;
     }
 
 }

@@ -39,7 +39,6 @@ public class RedisCommand extends BaseCommand{
         if(Func.isEmpty(valueKey))
             valueKey = "items";
         //all-ALL-COUNT
-        println(inputLine);
         String action = "http://202.100.241.122:9096/ykt/loadContentByKey?key="+key;
         PostParam pm = new PostParam();
         pm.addParam("key",key);
