@@ -32,4 +32,12 @@ public class Config {
         String tmp = prop.getProperty(key);
         return tmp!=null?tmp:"";
     }
+    public int getInteger(String key){
+        String tmp = getString(key);
+        if(Func.isEmpty(tmp)){
+            return 0;
+        }else{
+            return Integer.parseInt(tmp);
+        }
+    }
 }

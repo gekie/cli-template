@@ -25,6 +25,7 @@ public class CommandUtils {
     private Map<String,ExecutorBean> mapp = new TreeMap<String,ExecutorBean>();
     private static CommandUtils instance;
     private String inputLine;
+    private ConsoleReader reader;
     private CommandUtils(){
 
     }
@@ -100,7 +101,7 @@ public class CommandUtils {
             return prompt+">";
         }
     }
-    private void initCompletor(ConsoleReader reader){
+    private void initCompletor(){
         List<Completer> completors = new ArrayList<Completer>();
 
         Iterator<String> keys = mapp.keySet().iterator();
@@ -113,13 +114,17 @@ public class CommandUtils {
         completors.add(new FileNameCompleter());
         reader.addCompleter(new ArgumentCompleter(completors));
     }
+    public ConsoleReader getConsoleReader(){
+        return reader;
+    }
     public void listenInput(String[] args){
         try {
             GlobalValue.init();
-            ConsoleReader reader = new ConsoleReader();
+            reader = new ConsoleReader();
             FileHistory history = new FileHistory(new File(GlobalValue.COMMAND_HISTORY_FILE));
+            history.setMaxSize(Config.getInstance().getInteger("command_history_max_size"));
             reader.setHistory(history);
-            initCompletor(reader);
+            initCompletor();
             String line = null;
             boolean moreLine = false;
             boolean isSQLLine = false;
@@ -198,6 +203,9 @@ public class CommandUtils {
         if(Func.isEmpty(input)) return;
         String[] cmds = input.split(" ");
         String method = cmds[0];
+        if(method.toLowerCase().equals("show")){
+            method = cmds[1];
+        }
         ExecutorBean bean = mapp.get(method);
         if(bean!=null){
             try{
@@ -248,6 +256,10 @@ public class CommandUtils {
                         fd.setAccessible(true);
                         fd.set(bean.getObject(),GlobalValue.userName);
                     }
+                    if(fd.getName().equals("reader")){
+                        fd.setAccessible(true);
+                        fd.set(bean.getObject(),reader);
+                    }
                 }
                 long intime = System.currentTimeMillis();
                 Object ret = Boolean.FALSE;
@@ -292,7 +304,7 @@ public class CommandUtils {
             } catch (Exception e){
                 //e.printStackTrace();
             }
-        }else{
+        }else if(!method.equals("exit")){
             System.err.println("Not Found Command for '"+method+"'.");
         }
     }

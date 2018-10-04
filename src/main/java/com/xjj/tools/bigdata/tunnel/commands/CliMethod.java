@@ -16,4 +16,5 @@ public @interface CliMethod {
     public boolean show() default true;
     public boolean calcRequestTime() default true;
     public boolean checkSession() default true;
+    public String group() default "";
 }

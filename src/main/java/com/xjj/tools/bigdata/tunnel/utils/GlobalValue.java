@@ -24,6 +24,7 @@ public class GlobalValue {
     public static String QUERY_SQL_API=endPoint+"bigdata/querySQL";
     public static String Create_Repository_API=endPoint+"bigdata/saveConfig";
     public static String Drop_Repository_API=endPoint+"bigdata/removeConfig";
+    public static int printMaxRow = Config.getInstance().getInteger("print_max_row");
     public static boolean isLogin(){
         return ticket!=null&&ticket.trim().length()>0;
     }

@@ -1,6 +1,8 @@
 package com.xjj.tools.bigdata.tunnel.commands;
 
 import com.xjj.tools.bigdata.tunnel.utils.*;
+import jline.console.ConsoleReader;
+import jline.console.history.FileHistory;
 import org.fusesource.jansi.Ansi;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -8,8 +10,11 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.lang.reflect.Parameter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,6 +26,8 @@ public class InnerCommands extends BaseCommand{
     private String inputLine;
     @AutoSetValue
     private String userName;
+    @AutoSetValue
+    private ConsoleReader reader;
 
     @CliMethod(description = "登录大数据平台",checkSession = false)
     public boolean login(String account,String password){
@@ -147,7 +154,7 @@ public class InnerCommands extends BaseCommand{
         return true;
     }
 
-    @CliMethod(description = "显示指令帮助列表",checkSession = false)
+    @CliMethod(description = "显示指令帮助列表",checkSession = false,calcRequestTime = false)
     public boolean help(){
         yellow("使用使用 Xjj BigData Shell Tools，以下是支持的指令列表及使用参数：");
         println("---------------------");
@@ -155,6 +162,9 @@ public class InnerCommands extends BaseCommand{
         for(Map.Entry<String, ExecutorBean> entry: maps.entrySet()){
             ExecutorBean bean = entry.getValue();
             if(bean.getCliMethod().show()) {
+                if(!Func.isEmpty(bean.getCliMethod().group())){
+                    print(bean.getCliMethod().group()+" ",Ansi.Color.CYAN);
+                }
                 print(entry.getKey(), Ansi.Color.CYAN);
                 Parameter[] ps = bean.getMethod().getParameters();
                 for (int i = 0; i < ps.length; i++) {
@@ -210,8 +220,14 @@ public class InnerCommands extends BaseCommand{
         return true;
     }
 
-    @CliMethod(description = "输入历史列表",checkSession = false)
-    public boolean history(){
+    @CliMethod(description = "查看或清空输入历史列表",checkSession = false,calcRequestTime = false)
+    public boolean history(String clean) throws IOException{
+        if(!Func.isEmpty(clean)&&clean.equals("-c")){
+            println("command history clear");
+            FileHistory history = (FileHistory)reader.getHistory();
+            history.clear();
+            history.flush();
+        }
         try {
             FileReader m = new FileReader(new File(GlobalValue.COMMAND_HISTORY_FILE));
             BufferedReader bf = new BufferedReader(m);
@@ -226,6 +242,68 @@ public class InnerCommands extends BaseCommand{
             red("没有记录");
         }
         return true;
+    }
+
+    @CliMethod(description = "查看配置",checkSession = false,calcRequestTime = false)
+    public boolean config(){
+        ConsoleTable table = new ConsoleTable(2,false,-1);
+        table.appendRow();
+        table.appendColum("配置项");
+        table.appendColum("配置值");
+        table.appendRow();
+        table.appendColum("api_end_point");
+        table.appendColum(GlobalValue.endPoint);
+
+        table.appendRow();
+        table.appendColum("login_url");
+        table.appendColum(Config.getInstance().getString("login_url"));
+
+        table.appendRow();
+        table.appendColum("shell_commands_package");
+        table.appendColum(Config.getInstance().getString("shell_commands_package"));
+
+        table.appendRow();
+        table.appendColum("print_max_row");
+        table.appendColum(Config.getInstance().getInteger("print_max_row"));
+
+        table.appendRow();
+        table.appendColum("command_history_max_size");
+        table.appendColum(Config.getInstance().getInteger("command_history_max_size"));
+
+        table.appendRow();
+        table.appendColum("print_max_row");
+        table.appendColum(GlobalValue.printMaxRow);
+
+        table.appendRow();
+        table.appendColum("current_token_table_api");
+        table.appendColum(GlobalValue.MY_TABLE_API);
+
+        table.appendRow();
+        table.appendColum("execute_sql_api");
+        table.appendColum(GlobalValue.EXECUTE_SQL_API);
+
+        table.appendRow();
+        table.appendColum("query_sql_api");
+        table.appendColum(GlobalValue.QUERY_SQL_API);
+
+        table.appendRow();
+        table.appendColum("create_repository_api");
+        table.appendColum(GlobalValue.Create_Repository_API);
+
+        table.appendRow();
+        table.appendColum("drop_repository_api");
+        table.appendColum(GlobalValue.Drop_Repository_API);
+
+        table.appendRow();
+        table.appendColum("command_history_file");
+        table.appendColum(GlobalValue.COMMAND_HISTORY_FILE);
+
+        yellow(table.toString());
+        return true;
+    }
+    @CliMethod(description = "清屏操作",checkSession = false,calcRequestTime = false)
+    public void clean()throws IOException{
+        reader.clearScreen();
     }
 
 }

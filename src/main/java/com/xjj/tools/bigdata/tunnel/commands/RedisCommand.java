@@ -231,4 +231,10 @@ public class RedisCommand extends BaseCommand{
         JSONArray _items = new JSONArray(list);
         return _items;
     }
+
+    @CliMethod(group="show",key="redis",description = "列出Redis所有Keys.",checkSession = false)
+    public boolean showRedis(){
+        println("show Redis.");
+        return true;
+    }
 }

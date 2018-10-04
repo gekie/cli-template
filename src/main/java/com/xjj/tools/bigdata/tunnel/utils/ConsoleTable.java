@@ -15,7 +15,7 @@ public class ConsoleTable {
     private static int margin = 2;
 
     private boolean printHeader = false;
-    private int maxRowCount = 30;
+    private int maxRowCount = GlobalValue.printMaxRow;
     public ConsoleTable(int colum, boolean printHeader) {
         this.printHeader = printHeader;
         this.colum = colum;

@@ -301,6 +301,12 @@ public class SQLCommand extends BaseCommand{
         String tableName = sql.substring(_sql.indexOf("table")+6,sql.indexOf("("));
         return tableName.replaceAll(" ","");
     }
+
+    @CliMethod(group = "show",key="table",description = "列出所有SQL表",checkSession = false)
+    public boolean showtable(){
+        println("show table");
+        return true;
+    }
     public static void main(String[] args){
         String sql = "select count(\"ROW\") as total from \"xjj_aiml_pattern\";";
         String _sql = sql.toUpperCase();
@@ -325,4 +331,5 @@ public class SQLCommand extends BaseCommand{
             }
         }
     }
+
 }
