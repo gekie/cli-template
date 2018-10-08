@@ -88,7 +88,7 @@ public class ConsoleTable {
         if (printHeader)
             buf.append("|").append(printChar('=', sumlen + margin * 2 * colum + (colum - 1))).append("|\n");
         else
-            buf.append("┌").append(printChar('─', sumlen + margin * 2 * colum + (colum - 1))).append("┐\n");
+            buf.append("┌").append(printChar('-', sumlen + margin * 2 * colum + (colum - 1))).append("┐\n");
         for (int ii = 0; ii < rows.size(); ii++) {
             List row = rows.get(ii);
             for (int i = 0; i < colum; i++) {
@@ -106,7 +106,7 @@ public class ConsoleTable {
             //if (printHeader && ii == 0)
             //    buf.append("│").append(printChar('=', sumlen + margin * 2 * colum + (colum - 1))).append("│\n");
             //else
-            //    buf.append("│").append(printChar('─', sumlen + margin * 2 * colum + (colum - 1))).append("│\n");
+            //    buf.append("│").append(printChar('-', sumlen + margin * 2 * colum + (colum - 1))).append("│\n");
             if(ii==0)
                 buf.append("│").append(printChar('-', sumlen + margin * 2 * colum + (colum - 1))).append("│\n");
             if(ii>maxRowCount&&maxRowCount!=-1){
@@ -125,7 +125,7 @@ public class ConsoleTable {
                 break;
             }
         }
-        buf.append("└").append(printChar('─', sumlen + margin * 2 * colum + (colum - 1))).append("┘\n");
+        buf.append("└").append(printChar('-', sumlen + margin * 2 * colum + (colum - 1))).append("┘\n");
         if(more){
             buf.append("输出"+maxRowCount+"条记录,共"+rows.size()+"条记录\n");
         }
