@@ -113,7 +113,7 @@ public class ConsoleTable {
                 if(i==0)
                     buf.append('|').append(printChar(' ', margin)).append(o);
                 else
-                    buf.append(':').append(printChar(' ', margin)).append(o);
+                    buf.append('|').append(printChar(' ', margin)).append(o);
                 //buf.append(printChar(' ', columLen[i] - o.getBytes().length + margin));
                 buf.append(printChar(' ', columLen[i] -getStringLen(o) + margin));
             }
@@ -133,7 +133,7 @@ public class ConsoleTable {
                     if(i==0)
                         buf.append('|').append(printChar(' ', margin)).append(o);
                     else
-                        buf.append(':').append(printChar(' ', margin)).append(o);
+                        buf.append('|').append(printChar(' ', margin)).append(o);
                     //buf.append(printChar(' ', columLen[i] - o.getBytes().length + margin));
                     buf.append(printChar(' ', columLen[i] -getStringLen(o) + margin));
                 }
