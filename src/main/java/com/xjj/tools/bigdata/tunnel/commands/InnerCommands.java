@@ -54,6 +54,7 @@ public class InnerCommands extends BaseCommand{
                     GlobalValue.userName = _data.getString("fullname");
                     GlobalValue.account = account;
                     green("登录成功!");
+                    list();
                 }else{
                     err(obj.getString("msg"));
                 }
@@ -190,13 +191,15 @@ public class InnerCommands extends BaseCommand{
             if(show&&items.length()==0){
                 yellow("\t数据仓库为空，您可以使用CREATE TABLE指令创建仓库");
             }
-            ConsoleTable table = new ConsoleTable(5,false,-1);
+            items = sortJsonArray(items,"base:updatetime",true);
+            ConsoleTable table = new ConsoleTable(6,false,-1);
             table.appendRow();
             table.appendColum("*");
             table.appendColum("AppId");
             table.appendColum("仓库名");
             table.appendColum("仓库大小");
             table.appendColum("创建时间");
+            table.appendColum("最近更新");
             for(int i = 0;i<items.length();i++){
                 JSONObject item = items.getJSONObject(i);
                 tables.put(item.getString("base:appid"),item);
@@ -207,6 +210,7 @@ public class InnerCommands extends BaseCommand{
                     table.appendColum(item.getString("base:name"));
                     table.appendColum(Func.getFileSize(item.getLong("size")));
                     table.appendColum(Func.format(item.getLong("base:createtime")*1000));
+                    table.appendColum(Func.format(item.getLong("base:updatetime")*1000));
                 }
             }
             if(show){

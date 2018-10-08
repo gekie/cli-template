@@ -13,7 +13,7 @@ public class ConsoleTable {
     private int[] columLen;
 
     private static int margin =2;
-
+    private static int maxLen = 50;
     private boolean printHeader = false;
     private int maxRowCount = GlobalValue.printMaxRow;
     public ConsoleTable(int colum, boolean printHeader) {
@@ -63,6 +63,7 @@ public class ConsoleTable {
         row.add(value);
         //int len = value.toString().getBytes().length;
         int len = getStringLen(value.toString());
+        len = len>maxLen?maxLen:len;
         if (columLen[row.size() - 1] < len)
             columLen[row.size() - 1] = len;
         return this;
@@ -78,6 +79,15 @@ public class ConsoleTable {
             return str.length();
         }
     }
+    private String substring(String str,int count){
+        try {
+            String a = new String(str.getBytes("GBK"), "iso-8859-1");
+            a=a.substring(0,count);
+            return new String(a.getBytes("iso-8859-1"),"GBK");
+        }catch(Exception ex){
+            return "";
+        }
+    }
     public String toString() {
         StringBuilder buf = new StringBuilder();
         boolean more= false;
@@ -86,46 +96,52 @@ public class ConsoleTable {
             sumlen += len;
         }
         if (printHeader)
-            buf.append("|").append(printChar('=', sumlen + margin * 2 * colum + (colum - 1))).append("|\n");
+            buf.append("+").append(printChar('=', sumlen + margin * 2 * colum + (colum - 1))).append("+\n");
         else
-            buf.append("┌").append(printChar('-', sumlen + margin * 2 * colum + (colum - 1))).append("┐\n");
+            buf.append("+").append(printChar('-', sumlen + margin * 2 * colum + (colum - 1))).append("+\n");
         for (int ii = 0; ii < rows.size(); ii++) {
             List row = rows.get(ii);
             for (int i = 0; i < colum; i++) {
                 String o = "";
-                if (i < row.size())
+                if (i < row.size()) {
                     o = row.get(i).toString();
+                    if(getStringLen(o)>columLen[i]){
+                        //o = o.substring(0,columLen[i]-6)+"...";
+                        o = substring(o,columLen[i]-3)+"...";
+                    }
+                }
                 if(i==0)
-                    buf.append('│').append(printChar(' ', margin)).append(o);
+                    buf.append('|').append(printChar(' ', margin)).append(o);
                 else
                     buf.append(':').append(printChar(' ', margin)).append(o);
                 //buf.append(printChar(' ', columLen[i] - o.getBytes().length + margin));
                 buf.append(printChar(' ', columLen[i] -getStringLen(o) + margin));
             }
-            buf.append("│\n");
+            buf.append("|\n");
             //if (printHeader && ii == 0)
             //    buf.append("│").append(printChar('=', sumlen + margin * 2 * colum + (colum - 1))).append("│\n");
             //else
             //    buf.append("│").append(printChar('-', sumlen + margin * 2 * colum + (colum - 1))).append("│\n");
             if(ii==0)
-                buf.append("│").append(printChar('-', sumlen + margin * 2 * colum + (colum - 1))).append("│\n");
+                buf.append("+").append(printChar('-', sumlen + margin * 2 * colum + (colum - 1))).append("+\n");
             if(ii>maxRowCount&&maxRowCount!=-1){
                 more = true;
+                buf.append("+").append(printChar('-', sumlen + margin * 2 * colum + (colum - 1))).append("+\n");
                 for (int i = 0; i < colum; i++) {
                     String o = "...";
 
                     if(i==0)
-                        buf.append('│').append(printChar(' ', margin)).append(o);
+                        buf.append('|').append(printChar(' ', margin)).append(o);
                     else
-                        buf.append('┊').append(printChar(' ', margin)).append(o);
+                        buf.append(':').append(printChar(' ', margin)).append(o);
                     //buf.append(printChar(' ', columLen[i] - o.getBytes().length + margin));
                     buf.append(printChar(' ', columLen[i] -getStringLen(o) + margin));
                 }
-                buf.append("│\n");
+                buf.append("|\n");
                 break;
             }
         }
-        buf.append("└").append(printChar('-', sumlen + margin * 2 * colum + (colum - 1))).append("┘\n");
+        buf.append("+").append(printChar('-', sumlen + margin * 2 * colum + (colum - 1))).append("+\n");
         if(more){
             buf.append("输出"+maxRowCount+"条记录,共"+rows.size()+"条记录\n");
         }

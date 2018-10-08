@@ -95,28 +95,7 @@ public class RedisCommand extends BaseCommand{
         }
         return true;
     }
-    private Object getObject(JSONObject item,String key){
-        if(item.has(key)){
-            return item.get(key);
-        }
-        if(item.has(key.toLowerCase())){
-            return item.get(key.toLowerCase());
-        }
-        if(item.has(key.toUpperCase())){
-            return item.get(key.toUpperCase());
-        }
-        return null;
-    }
-    private Object getObject(HashMap item,String key){
-        if(item.containsKey(key)){
-            return item.get(key);
-        } else if (item.containsKey(key.toUpperCase())) {
-            return item.get(key.toUpperCase());
-        }else if(item.containsKey(key.toLowerCase())){
-            return item.get(key.toLowerCase());
-        }else
-            return null;
-    }
+
     private List<String> getHeader(JSONObject item){
         List<String> hds = new ArrayList<>();
         Iterator<String> keys = item.keys();
@@ -149,87 +128,7 @@ public class RedisCommand extends BaseCommand{
             return table;
         }
     }
-    private boolean containsKey(HashMap map,String key){
-        if(map.containsKey(key)){
-            return true;
-        }else if(map.containsKey(key.toLowerCase())){
-            return true;
-        }else if(map.containsKey(key.toUpperCase())){
-            return true;
-        }else
-            return false;
-    }
-    private JSONArray sortJsonArray(JSONArray items, final String sortField, final boolean desc){
-        List<Object> list = items.toList();
-        Collections.sort(list, new Comparator() {
-            public int compare(Object obj1,Object obj2){
-                int retVal=0;
-                HashMap a = (HashMap) obj1;
-                HashMap b = (HashMap)obj2;
-                if(containsKey(a,sortField)){
-                    Object av = getObject(a,sortField);
-                    Object bv = getObject(b,sortField);
-                    String type = av.getClass().getName();
-                    if(type.equals("java.lang.Integer")) {
-                        Integer ai = new Integer(av.toString());
-                        Integer bi = new Integer(bv.toString());
-                        if (desc) {
-                            if(bi>ai) return 1;
-                            else if(bi==ai) return 0;
-                            else
-                                return -1;
-                        } else {
-                            if(ai>bi) return 1;
-                            else if(ai==bi) return 0;
-                            else
-                                return -1;
-                        }
-                    }else if(type.equals("java.lang.Float")) {
-                        if (desc) {
-                            if ((Float) bv > (Float) av) return 1;
-                            if ((Float) bv == (Float) av) return 0;
-                            return -1;
-                        } else {
-                            if ((Float) av > (Float) bv) return 1;
-                            if ((Float) av == (Float) bv) return 0;
-                            return -1;
-                        }
-                    }else if(type.equals("java.lang.Double")){
-                        if (desc) {
-                            if ((Double) bv > (Double) av) return 1;
-                            if ((Double) bv == (Double) av) return 0;
-                            return -1;
-                        } else {
-                            if ((Double) av > (Double) bv) return 1;
-                            if ((Double) av == (Double) bv) return 0;
-                            return -1;
-                        }
-                    }else if(type.equals("java.lang.Long")){
-                        if (desc) {
-                            if ((Long) bv > (Long) av) return -1;
-                            if ((Long) bv == (Long) av) return 0;
-                            return -1;
-                        } else {
-                            if ((Long) av > (Long) bv) return 1;
-                            if ((Long) av == (Long) bv) return 0;
-                            return -1;
-                        }
-                    }else if(type.equals("java.lang.String")){
-                        String af = av.toString().substring(0,1);
-                        String bf = bv.toString().substring(0,1);
-                        if(desc){
-                            retVal=af.compareTo(bf);
-                        }else{
-                            retVal = bf.compareTo(af);
-                        }
-                    }
-                }
 
-                return retVal;
-            }
-        });
-        JSONArray _items = new JSONArray(list);
-        return _items;
-    }
+
 
 }

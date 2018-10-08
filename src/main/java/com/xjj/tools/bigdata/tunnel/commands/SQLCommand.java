@@ -30,9 +30,9 @@ public class SQLCommand extends BaseCommand{
         PostParam pm = new PostParam();
         pm.addParam("sql",sql);
         pm.addParam("appid", GlobalValue.appid);
-        //JSONObject result = RESTfulAgent.getInstance().loadObject(GlobalValue.QUERY_SQL_API,pm);
-        String api = "http://202.100.241.122:9096/xxd/queryBySQL";
-        JSONObject result = RESTfulAgent.getInstance().loadObject(api,pm);
+        JSONObject result = RESTfulAgent.getInstance().loadObject(GlobalValue.QUERY_SQL_API,pm);
+        //String api = "http://202.100.241.122:9096/xxd/queryBySQL";
+        //JSONObject result = RESTfulAgent.getInstance().loadObject(api,pm);
         int errorCode = result.getInt("errorCode");
         if(errorCode==0){
             JSONArray items = result.getJSONArray("items");
@@ -152,9 +152,9 @@ public class SQLCommand extends BaseCommand{
         PostParam pm = new PostParam();
         pm.addParam("sql",sql);
         pm.addParam("appid", GlobalValue.appid);
-        //JSONObject result = RESTfulAgent.getInstance().loadObject(GlobalValue.QUERY_SQL_API,pm);
-        String api = "http://202.100.241.122:9096/xxd/queryBySQL";
-        JSONObject result = RESTfulAgent.getInstance().loadObject(api,pm);
+        JSONObject result = RESTfulAgent.getInstance().loadObject(GlobalValue.QUERY_SQL_API,pm);
+        //String api = "http://202.100.241.122:9096/xxd/queryBySQL";
+        //JSONObject result = RESTfulAgent.getInstance().loadObject(api,pm);
         int errorCode = result.getInt("errorCode");
         if(errorCode==0){
             JSONArray items = result.getJSONArray("items");
@@ -178,7 +178,7 @@ public class SQLCommand extends BaseCommand{
                     }else{
                         for(JSONObject obj:heads){
                             String key = obj.getString("field").toUpperCase();
-                            table.appendColum(item.get(key));
+                            table.appendColum(get(key,item));
                         }
                     }
                 }
@@ -191,6 +191,17 @@ public class SQLCommand extends BaseCommand{
             red(result.getString("message"));
         }
         return true;
+    }
+    private Object get(String key,JSONObject obj){
+        if(obj.has(key)){
+            return obj.get(key);
+        }else if(obj.has(key.toUpperCase())){
+            return obj.get(key.toUpperCase());
+        }else if(obj.has(key.toLowerCase())){
+            return obj.get(key.toLowerCase());
+        }else{
+            return null;
+        }
     }
     private ConsoleTable getConsoleTable(List<JSONObject> heads,JSONObject item){
         ConsoleTable table = null;
@@ -306,6 +317,40 @@ public class SQLCommand extends BaseCommand{
     public boolean showtable(){
         println("show table");
         return true;
+    }
+
+    @CliMethod(description = "查看键组")
+    public boolean describe(String appid){
+        String _appid = appid.replaceAll("\"","");
+        if(GlobalValue.tables.get(_appid)==null){
+            red(appid+"不存在");
+            return true;
+        }else {
+            String sql = "select * from "+appid+" limit 1";
+            PostParam pm = new PostParam();
+            pm.addParam("sql", sql);
+            pm.addParam("appid", appid);
+            JSONObject result = RESTfulAgent.getInstance().loadObject(GlobalValue.QUERY_SQL_API, pm);
+            if(result.getInt("errorCode")==0){
+                JSONArray items = result.getJSONArray("items");
+                if(items.length()>0) {
+                    ConsoleTable table = new ConsoleTable(2, false, -1);
+                    table.appendRow("FIELD_NAME;TYPE_NAME");
+                    JSONObject item = items.getJSONObject(0);
+                    Iterator<String> keys = item.keys();
+                    while (keys.hasNext()) {
+                        String key = keys.next();
+                        table.appendRow(new Object[]{key,"varchar"});
+                    }
+                    yellow(table.toString());
+                }else{
+                    red("没有记录");
+                }
+            }else{
+                red(result.getString("message"));
+            }
+            return true;
+        }
     }
     public static void main(String[] args){
         String sql = "select count(\"ROW\") as total from \"xjj_aiml_pattern\";";
