@@ -12,7 +12,7 @@ public class ConsoleTable {
 
     private int[] columLen;
 
-    private static int margin = 2;
+    private static int margin =2;
 
     private boolean printHeader = false;
     private int maxRowCount = GlobalValue.printMaxRow;
@@ -24,6 +24,27 @@ public class ConsoleTable {
     public ConsoleTable(int colum, boolean printHeader,int maxRowCount) {
         this(colum,printHeader);
         this.maxRowCount = maxRowCount;
+    }
+    public ConsoleTable(String column,int maxRowCount){
+        String[] cs = column.split(";");
+        this.printHeader= false;
+        this.colum = cs.length;
+        this.columLen = new int[this.colum];
+        this.maxRowCount = maxRowCount;
+        this.appendRow();
+        for(String c:cs){
+            this.appendColum(c);
+        }
+    }
+    public void appendRow(Object[] rows){
+        this.appendRow();
+        for(Object r:rows){
+            this.appendColum(r);
+        }
+    }
+    public void appendRow(String rows){
+        String[] rs = rows.split(";");
+        appendRow(rs);
     }
     public void setMaxRowCount(int limit){
         this.maxRowCount = limit;
@@ -67,7 +88,7 @@ public class ConsoleTable {
         if (printHeader)
             buf.append("|").append(printChar('=', sumlen + margin * 2 * colum + (colum - 1))).append("|\n");
         else
-            buf.append("┎").append(printChar('╌', sumlen + margin * 2 * colum + (colum - 1))).append("┒\n");
+            buf.append("┌").append(printChar('─', sumlen + margin * 2 * colum + (colum - 1))).append("┐\n");
         for (int ii = 0; ii < rows.size(); ii++) {
             List row = rows.get(ii);
             for (int i = 0; i < colum; i++) {
@@ -75,36 +96,36 @@ public class ConsoleTable {
                 if (i < row.size())
                     o = row.get(i).toString();
                 if(i==0)
-                    buf.append('┃').append(printChar(' ', margin)).append(o);
+                    buf.append('│').append(printChar(' ', margin)).append(o);
                 else
-                    buf.append('┊').append(printChar(' ', margin)).append(o);
+                    buf.append(':').append(printChar(' ', margin)).append(o);
                 //buf.append(printChar(' ', columLen[i] - o.getBytes().length + margin));
                 buf.append(printChar(' ', columLen[i] -getStringLen(o) + margin));
             }
-            buf.append("┃\n");
+            buf.append("│\n");
             //if (printHeader && ii == 0)
-            //    buf.append("┃").append(printChar('=', sumlen + margin * 2 * colum + (colum - 1))).append("┃\n");
+            //    buf.append("│").append(printChar('=', sumlen + margin * 2 * colum + (colum - 1))).append("│\n");
             //else
-            //    buf.append("┃").append(printChar('╌', sumlen + margin * 2 * colum + (colum - 1))).append("┃\n");
+            //    buf.append("│").append(printChar('─', sumlen + margin * 2 * colum + (colum - 1))).append("│\n");
             if(ii==0)
-                buf.append("┃").append(printChar('╌', sumlen + margin * 2 * colum + (colum - 1))).append("┃\n");
+                buf.append("│").append(printChar('-', sumlen + margin * 2 * colum + (colum - 1))).append("│\n");
             if(ii>maxRowCount&&maxRowCount!=-1){
                 more = true;
                 for (int i = 0; i < colum; i++) {
                     String o = "...";
 
                     if(i==0)
-                        buf.append('┃').append(printChar(' ', margin)).append(o);
+                        buf.append('│').append(printChar(' ', margin)).append(o);
                     else
                         buf.append('┊').append(printChar(' ', margin)).append(o);
                     //buf.append(printChar(' ', columLen[i] - o.getBytes().length + margin));
                     buf.append(printChar(' ', columLen[i] -getStringLen(o) + margin));
                 }
-                buf.append("┃\n");
+                buf.append("│\n");
                 break;
             }
         }
-        buf.append("┖").append(printChar('╌', sumlen + margin * 2 * colum + (colum - 1))).append("┚\n");
+        buf.append("└").append(printChar('─', sumlen + margin * 2 * colum + (colum - 1))).append("┘\n");
         if(more){
             buf.append("输出"+maxRowCount+"条记录,共"+rows.size()+"条记录\n");
         }
@@ -117,17 +138,5 @@ public class ConsoleTable {
             buf.append(c);
         }
         return buf.toString();
-    }
-    public static void main(String[] args) {
-        ConsoleTable t = new ConsoleTable(3, true);
-        t.appendRow();
-        t.appendColum("学号").appendColum("姓名").appendColum("性别");
-
-        t.appendRow();
-        t.appendColum("01").appendColum("张大").appendColum("男");
-
-        t.appendRow();
-        t.appendColum("02").appendColum("小强").appendColum("男");
-        System.out.println(t.toString());
     }
 }

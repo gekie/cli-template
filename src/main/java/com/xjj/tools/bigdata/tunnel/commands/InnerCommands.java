@@ -139,17 +139,20 @@ public class InnerCommands extends BaseCommand{
         if (table == null) {
             err(appid + "不存在");
         } else {
-            String buf = "";
-            buf+="仓库标识:"+table.getString("base:appid")+"\r\n";
-            buf+="创建时间:"+Func.format(table.getLong("base:createtime")*1000)+"\r\n";
-            buf+="仓库名称:"+table.getString("base:name")+"\r\n";
-            buf+="实时处理:"+table.getString("base:onlineprovider")+"\r\n";
-            buf+="数据提供者:"+table.getString("base:provider")+"\r\n";
-            buf+="最近同步时间:"+Func.format(table.getLong("base:updatetime")*1000)+"\r\n";
-            buf+="记录数:"+table.getString("base:rowcount")+"\r\n";
-            buf+="仓库大小:"+Func.getFileSize(table.getLong("size"))+"\r\n";
-            buf+="SecretKey:"+table.getString("rowKey")+"\r\n";
-            print(buf);
+            ConsoleTable ct = new ConsoleTable("列项目;列值",-1);
+            ct.appendRow(new Object[]{"仓库标识",table.getString("base:appid")});
+            ct.appendRow(new Object[]{"创建时间",Func.format(table.getLong("base:createtime") * 1000)});
+            ct.appendRow(new Object[]{"仓库名称",table.getString("base:name")});
+            ct.appendRow(new Object[]{"实时处理",table.getString("base:onlineprovider")});
+            ct.appendRow(new Object[]{"数据提供者",table.getString("base:provider")});
+            if(table.has("base:updatetime"))
+                ct.appendRow(new Object[]{"最近同步时间",Func.format(table.getLong("base:updatetime") * 1000)});
+            if(table.has("base:rowcount"))
+                ct.appendRow(new Object[]{"记录数",table.getString("base:rowcount")});
+            if(table.has("size"))
+                ct.appendRow(new Object[]{"仓库大小",Func.getFileSize(table.getLong("size"))});
+            ct.appendRow(new Object[]{"SecretKey",table.getString("rowKey")});
+            yellow(ct.toString());
         }
         return true;
     }
@@ -184,21 +187,30 @@ public class InnerCommands extends BaseCommand{
         if(errorCode==0){
             JSONArray items = obj.getJSONArray("items");
             HashMap<String,JSONObject> tables = new HashMap<>();
-            if(show)
-                println("========您的仓库列表=============");
             if(show&&items.length()==0){
                 yellow("\t数据仓库为空，您可以使用CREATE TABLE指令创建仓库");
             }
+            ConsoleTable table = new ConsoleTable(5,false,-1);
+            table.appendRow();
+            table.appendColum("*");
+            table.appendColum("AppId");
+            table.appendColum("仓库名");
+            table.appendColum("仓库大小");
+            table.appendColum("创建时间");
             for(int i = 0;i<items.length();i++){
                 JSONObject item = items.getJSONObject(i);
                 tables.put(item.getString("base:appid"),item);
                 if(show) {
-                    print((i + 1) + ".");
-                    if (i % 2 == 0)
-                        green(item.getString("base:name") + " <" + item.getString("base:appid") + ">");
-                    else
-                        yellow(item.getString("base:name") + " <" + item.getString("base:appid") + ">");
+                    table.appendRow();
+                    table.appendColum((i + 1));
+                    table.appendColum(item.getString("base:appid"));
+                    table.appendColum(item.getString("base:name"));
+                    table.appendColum(Func.getFileSize(item.getLong("size")));
+                    table.appendColum(Func.format(item.getLong("base:createtime")*1000));
                 }
+            }
+            if(show){
+                yellow(table.toString());
             }
             GlobalValue.tables=tables;
         }else{

@@ -302,7 +302,7 @@ public class CommandUtils {
                     }
                 }
             } catch (Exception e){
-                //e.printStackTrace();
+                e.printStackTrace();
             }
         }else if(!method.equals("exit")){
             System.err.println("Not Found Command for '"+method+"'.");
