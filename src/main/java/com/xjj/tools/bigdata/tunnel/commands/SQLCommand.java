@@ -230,10 +230,10 @@ public class SQLCommand extends BaseCommand{
             return false;
         }
         String tableName = getTableName(sql);
-        if(GlobalValue.tables.get(tableName)!=null){
+        /*if(GlobalValue.tables.get(tableName)!=null){
             red(tableName+"已经存在");
             return false;
-        }
+        }*/
         //create table a_test2(id varchar primary key,a varchar,b varchar);
         sql = sql.replaceAll(";","");
         println(sql);

@@ -87,7 +87,7 @@ public class CommandUtils {
 
         String[] pm= input.toUpperCase().split(" ");
         String cmd = pm[0];
-        String sqlStart = "SELECT;DELETE;UPSERT;INSERT;";
+        String sqlStart = "SELECT;DELETE;UPSERT;INSERT;CREATE;";
         return sqlStart.indexOf(cmd+";")!=-1;
     }
     public static String getShellPrompt(boolean moreLine){

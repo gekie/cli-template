@@ -4,8 +4,13 @@ import com.xjj.tools.bigdata.tunnel.utils.Func;
 import com.xjj.tools.bigdata.tunnel.utils.GlobalValue;
 import com.xjj.tools.bigdata.tunnel.utils.PostParam;
 import com.xjj.tools.bigdata.tunnel.utils.RESTfulAgent;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.io.File;
 
 /**
  * Created by cjh on 18/9/20.
@@ -13,10 +18,67 @@ import org.json.JSONObject;
 @CliCompent
 public class UploadCommand extends BaseCommand {
     @CliMethod(key = "uploadCsvFile",description = "上传CSV格式文件到仓库中",checkSession = true)
-    public boolean uploadCsvFile(String csvFile,String tableName,String columnSplitChar,String rowSplitChar){
+    public boolean uploadCsvFile(String csvFile,
+                                 String tableName,
+                                 String columnSplitChar,
+                                 String rowSplitChar,
+                                 String rewrite,
+                                 String hdfs){
+        if(Func.isEmpty(csvFile)){
+            red("请提供待上传数据文件路径");
+            return false;
+        }
+        File file = new File(csvFile);
+        if(!file.exists()){
+            red(csvFile+"不存在");
+            return true;
+        }
+        if(Func.isEmpty(tableName)){
+            red("请供仓库名称");
+            return false;
+        }
+        if(Func.isEmpty(rewrite))
+            rewrite = "true";
+        if(Func.isEmpty(hdfs))
+            hdfs = "false";
+        if(Func.isEmpty(columnSplitChar))
+            columnSplitChar = ",";
+        if(Func.isEmpty(rowSplitChar))
+            rowSplitChar = "\n";
+        try {
+            MultipartEntity part = new MultipartEntity();
+            part.addPart("appid", new StringBody(tableName));
+            part.addPart("overwrite",new StringBody(rewrite));
+            part.addPart("columnSplitChar",new StringBody(columnSplitChar));
+            part.addPart("rowSplitChar",new StringBody(rowSplitChar));
+            part.addPart("hdfs",new StringBody(hdfs));
+            part.addPart("datafile",new FileBody(file,"application/octet-stream","UTF-8"));
+            String content = RESTfulAgent.getInstance().doMultipartPost(GlobalValue.DATA_UPLOAD_API,part);
+            yellow(content);
+        }catch(Exception ex){
+            red(ex.getMessage());
+        }
         return true;
     }
-
+    @CliMethod(group = "show",description = "查看数据上传日志",calcRequestTime = false)
+    public boolean upload(String _,String appid){
+        if(Func.isEmpty(appid)){
+            return  false;
+        }
+        PostParam pm = new PostParam();
+        pm.addParam("appid",appid);
+        JSONObject result = RESTfulAgent.getInstance().loadObject(GlobalValue.SHOW_UPLOAD_LOG,pm);
+        Object obj = result.get("message");
+        if(obj instanceof JSONObject)
+            yellow(result.getString("message"));
+        else if(obj instanceof JSONArray){
+            JSONArray arr = (JSONArray)obj;
+            for(int i = 0;i<arr.length();i++){
+                yellow(arr.getString(i).replaceAll("\n",""));
+            }
+        }
+        return true;
+    }
     @CliMethod(description = "上传TXT文件到仓库中")
     public boolean uploadTxtFile(String txtFile,String tableName,String columnSplitChar,String rowSplitChar){
         return true;

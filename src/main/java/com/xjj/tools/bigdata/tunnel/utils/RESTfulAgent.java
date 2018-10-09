@@ -443,6 +443,11 @@ public class RESTfulAgent {
         HttpPost httpPost = new HttpPost(url);
         try {
             httpPost.setEntity(part);
+            if(GlobalValue.ticket!=null)
+                httpPost.addHeader("ticket",GlobalValue.ticket);
+            if(GlobalValue.sessionId!=null){
+                httpPost.addHeader("Cookie",GlobalValue.sessionId);
+            }
             HttpResponse response = httpClient.execute(httpPost, httpContext);
             int code = response.getStatusLine().getStatusCode();
             if (code == HttpURLConnection.HTTP_OK) {
@@ -685,4 +690,5 @@ public class RESTfulAgent {
         }
         return result;
     }
+
 }
