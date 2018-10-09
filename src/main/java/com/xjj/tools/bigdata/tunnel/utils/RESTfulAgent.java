@@ -20,6 +20,7 @@ import java.util.List;
 public class RESTfulAgent {
     final String userAgent = "xjj-bigdata-api";
     private static RESTfulAgent inst;
+    private static int connectTimeOut =30000;
     public static RESTfulAgent getInstance(){
         if(inst==null){
             inst = new RESTfulAgent();
@@ -41,8 +42,8 @@ public class RESTfulAgent {
             conn = (HttpURLConnection) _url.openConnection();
             conn.setDoOutput(true);
             conn.setDoInput(true);
-            conn.setConnectTimeout(30000);
-            conn.setReadTimeout(30000);
+            conn.setConnectTimeout(connectTimeOut);
+            conn.setReadTimeout(connectTimeOut);
             conn.setRequestMethod("POST");
             //conn.setRequestProperty("Connection", "Keep-Alive");
             //conn.setRequestProperty("Accept", "application/octet-stream, */*");
@@ -133,8 +134,8 @@ public class RESTfulAgent {
             conn = (HttpURLConnection) _url.openConnection();
             conn.setDoOutput(true);
             conn.setDoInput(true);
-            conn.setConnectTimeout(30000);
-            conn.setReadTimeout(30000);
+            conn.setConnectTimeout(connectTimeOut);
+            conn.setReadTimeout(connectTimeOut);
             conn.setRequestMethod("GET");
             //conn.setRequestProperty("Connection", "Keep-Alive");
             //conn.setRequestProperty("Accept", "application/octet-stream, */*");
@@ -226,8 +227,8 @@ public class RESTfulAgent {
                     conn = (HttpURLConnection) _url.openConnection();
                     conn.setDoOutput(true);
                     conn.setDoInput(true);
-                    conn.setConnectTimeout(30000);
-                    conn.setReadTimeout(30000);
+                    conn.setConnectTimeout(connectTimeOut);
+                    conn.setReadTimeout(connectTimeOut);
                     conn.setRequestMethod("POST");
                     //conn.setRequestProperty("Connection", "Keep-Alive");
                     //conn.setRequestProperty("Accept", "application/octet-stream, */*");
@@ -474,8 +475,8 @@ public class RESTfulAgent {
                     conn = (HttpURLConnection) _url.openConnection();
                     conn.setDoOutput(true);
                     conn.setDoInput(true);
-                    conn.setConnectTimeout(30000);
-                    conn.setReadTimeout(30000);
+                    conn.setConnectTimeout(connectTimeOut);
+                    conn.setReadTimeout(connectTimeOut);
                     conn.setRequestMethod("POST");
                     conn.setRequestProperty("Accept", "application/json"); // 设置接收数据的格式
                     conn.setRequestProperty("Content-Type", "application/json"); // 设置发送数据的格式
@@ -614,8 +615,8 @@ public class RESTfulAgent {
             conn = (HttpURLConnection) _url.openConnection();
             conn.setDoOutput(true);
             conn.setDoInput(true);
-            conn.setConnectTimeout(30000);
-            conn.setReadTimeout(30000);
+            conn.setConnectTimeout(connectTimeOut);
+            conn.setReadTimeout(connectTimeOut);
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Accept", "application/json"); // 设置接收数据的格式
             conn.setRequestProperty("Content-Type", "application/json"); // 设置发送数据的格式
