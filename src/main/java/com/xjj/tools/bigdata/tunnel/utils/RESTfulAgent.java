@@ -692,4 +692,90 @@ public class RESTfulAgent {
         return result;
     }
 
+    public void donwloadFile(final String url,final PostParam params,final OnDownLoadListener listener){
+        MessageExecutorService.getInstance().execute(new Runnable() {
+            @Override
+            public void run() {
+                HttpURLConnection conn =null;
+                InputStream is = null;
+                FileOutputStream fos = null;
+                OutputStream out = null;
+                try {
+                    URL myURL = new URL(url);
+                    listener.onReadyDownload();
+                    conn = (HttpURLConnection) myURL.openConnection();
+                    conn.setDoOutput(true);
+                    conn.setDoInput(true);
+                    conn.setRequestMethod("POST");
+                    if(GlobalValue.ticket!=null){
+                        conn.setRequestProperty("ticket", GlobalValue.ticket);
+                    }
+                    if(GlobalValue.sessionId!=null){
+                        conn.addRequestProperty("Cookie", GlobalValue.sessionId);
+                    }
+                    out = conn.getOutputStream();
+                    if (params != null)
+                        out.write(params.getParamBytes());
+                    out.flush();
+                    //conn.connect();
+                    if(conn.getResponseCode()==HttpURLConnection.HTTP_OK){
+                        int totalSize = conn.getContentLength();
+                        String fileName = conn.getHeaderField("Content-Disposition");
+                        fileName = new String(fileName.getBytes("ISO-8859-1"), "GBK");
+                        fileName = URLDecoder.decode(fileName.substring(fileName.indexOf("filename=")+9),"UTF-8");
+                        String localFile = listener.onFileContentLength(totalSize,fileName);
+                        is = conn.getInputStream();
+                        if(totalSize<=0){
+                            listener.onDownloadFail("无法获知文件大小");
+                        }else if (is == null){
+                            listener.onDownloadFail("文件下载失败");
+                        }else{
+                            fos = new FileOutputStream(localFile);
+                            byte buf[] = new byte[1024];
+                            int downLoadFileSize = 0;
+                            listener.onDownloadProcess(downLoadFileSize,totalSize);
+                            do{
+                                int numread = is.read(buf);
+                                if(numread==-1){
+                                    break;
+                                }
+                                fos.write(buf,0,numread);
+                                downLoadFileSize+=numread;
+                                listener.onDownloadProcess(downLoadFileSize,totalSize);
+                            }while(true);
+                            fos.flush();
+                            listener.onDownloadSuccess("下载完成任");
+                        }
+                    }else{
+                        String message = "读取数据失败:"+conn.getResponseMessage()+" 错误代码："+conn.getResponseCode();
+                        listener.onDownloadFail(message);
+                    }
+                }catch(OutOfMemoryError er){
+                    er.printStackTrace();
+                    listener.onDownloadFail(er.getMessage());
+                }catch(Error er){
+                    er.printStackTrace();
+                    listener.onDownloadFail(er.getMessage());
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                    listener.onDownloadFail(e.getMessage());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    listener.onDownloadFail(e.getMessage());
+                }catch(Exception ex){
+                    listener.onDownloadFail(ex.getMessage());
+                }finally{
+                    if (out != null) {
+                        try {
+                            out.close();
+                        } catch (IOException e) {
+                        }
+                    }
+                    if(is!=null){try { is.close(); } catch (IOException e) { }}
+                    if(fos!=null){ try {fos.close(); } catch (IOException e) { }  }
+                    if(conn!=null){ conn.disconnect(); }
+                }
+            }
+        });
+    }
 }

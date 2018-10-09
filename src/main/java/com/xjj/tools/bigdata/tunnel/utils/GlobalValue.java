@@ -26,6 +26,7 @@ public class GlobalValue {
     public static String Drop_Repository_API=endPoint+"bigdata/removeConfig";
     public static String DATA_UPLOAD_API=endPoint+"bigdata/ReceiveDataFile";
     public static String SHOW_UPLOAD_LOG=endPoint+"bigdata/showImportDataLog";
+    public static String exportCSV_API=endPoint+"bigdata/exportCSV";
     public static int printMaxRow = Config.getInstance().getInteger("print_max_row");
     public static boolean isLogin(){
         return ticket!=null&&ticket.trim().length()>0;

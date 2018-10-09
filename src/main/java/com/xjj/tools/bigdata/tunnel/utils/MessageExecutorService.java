@@ -16,7 +16,6 @@ public class MessageExecutorService {
 	private static MessageExecutorService instance;
 	
 	public MessageExecutorService(int poolSize){
-		instance = this;
 		this.POOL_SIZE = poolSize;
 		//executorService = Executors.newFixedThreadPool(Runtime.getRuntime()
 		//		.availableProcessors() * POOL_SIZE);
@@ -24,6 +23,8 @@ public class MessageExecutorService {
 	}
 	
 	public static MessageExecutorService getInstance(){
+		if(instance==null)
+			instance = new MessageExecutorService(10);
 		return instance;
 	}
 	
