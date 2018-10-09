@@ -9,7 +9,7 @@ import java.util.Date;
  */
 public class Func {
     public static String format(long timestamp){
-        return format(timestamp,"yyyy-MM-dd hh:mm:ss");
+        return format(timestamp,"yyyy-MM-dd HH:mm:ss");
     }
     public static String format(long timestap,String fmt){
         SimpleDateFormat df = new SimpleDateFormat(fmt);
