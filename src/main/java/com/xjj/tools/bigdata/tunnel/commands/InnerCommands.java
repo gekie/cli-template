@@ -263,56 +263,22 @@ public class InnerCommands extends BaseCommand{
     @CliMethod(description = "查看配置",checkSession = false,calcRequestTime = false)
     public boolean config(){
         ConsoleTable table = new ConsoleTable(2,false,-1);
-        table.appendRow();
-        table.appendColum("配置项");
-        table.appendColum("配置值");
-        table.appendRow();
-        table.appendColum("api_end_point");
-        table.appendColum(GlobalValue.endPoint);
-
-        table.appendRow();
-        table.appendColum("login_url");
-        table.appendColum(Config.getInstance().getString("login_url"));
-
-        table.appendRow();
-        table.appendColum("shell_commands_package");
-        table.appendColum(Config.getInstance().getString("shell_commands_package"));
-
-        table.appendRow();
-        table.appendColum("print_max_row");
-        table.appendColum(Config.getInstance().getInteger("print_max_row"));
-
-        table.appendRow();
-        table.appendColum("command_history_max_size");
-        table.appendColum(Config.getInstance().getInteger("command_history_max_size"));
-
-        table.appendRow();
-        table.appendColum("print_max_row");
-        table.appendColum(GlobalValue.printMaxRow);
-
-        table.appendRow();
-        table.appendColum("current_token_table_api");
-        table.appendColum(GlobalValue.MY_TABLE_API);
-
-        table.appendRow();
-        table.appendColum("execute_sql_api");
-        table.appendColum(GlobalValue.EXECUTE_SQL_API);
-
-        table.appendRow();
-        table.appendColum("query_sql_api");
-        table.appendColum(GlobalValue.QUERY_SQL_API);
-
-        table.appendRow();
-        table.appendColum("create_repository_api");
-        table.appendColum(GlobalValue.Create_Repository_API);
-
-        table.appendRow();
-        table.appendColum("drop_repository_api");
-        table.appendColum(GlobalValue.Drop_Repository_API);
-
-        table.appendRow();
-        table.appendColum("command_history_file");
-        table.appendColum(GlobalValue.COMMAND_HISTORY_FILE);
+        table.appendRow("配置项;配置值");
+        table.appendRow(new Object[]{"api_end_point",GlobalValue.endPoint});
+        table.appendRow(new Object[]{"login_url",Config.getInstance().getString("login_url")});
+        table.appendRow(new Object[]{"shell_commands_package",Config.getInstance().getString("shell_commands_package")});
+        table.appendRow(new Object[]{"print_max_row",Config.getInstance().getInteger("print_max_row")});
+        table.appendRow(new Object[]{"command_history_max_size",Config.getInstance().getInteger("command_history_max_size")});
+        table.appendRow(new Object[]{"print_max_row",GlobalValue.printMaxRow});
+        table.appendRow(new Object[]{"command_history_file",GlobalValue.COMMAND_HISTORY_FILE});
+        table.appendRow(new Object[]{"current_token_table_api",GlobalValue.MY_TABLE_API});
+        table.appendRow(new Object[]{"execute_sql_api",GlobalValue.EXECUTE_SQL_API});
+        table.appendRow(new Object[]{"query_sql_api",GlobalValue.QUERY_SQL_API});
+        table.appendRow(new Object[]{"create_repository_api",GlobalValue.Create_Repository_API});
+        table.appendRow(new Object[]{"drop_repository_api",GlobalValue.Drop_Repository_API});
+        table.appendRow(new Object[]{"csv_data_upload_api",GlobalValue.DATA_UPLOAD_API});
+        table.appendRow(new Object[]{"show_upload_log_api",GlobalValue.SHOW_UPLOAD_LOG});
+        table.appendRow(new Object[]{"export_csv_api",GlobalValue.exportCSV_API});
 
         yellow(table.toString());
         return true;
