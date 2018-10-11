@@ -174,7 +174,7 @@ public class BaseCommand {
 
     protected void printProgress(long num,long max){
         print("[",1);
-        String p = Integer.toString(Math.round(num/max)*100)+"%";
+        String p = Integer.toString(Math.round((num/max)*100))+"%";
         print(p,2, Ansi.Color.BLUE, Ansi.Color.WHITE);
         print("/");
         print("100%", Ansi.Color.YELLOW);
