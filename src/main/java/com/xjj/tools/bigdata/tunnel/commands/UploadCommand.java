@@ -1,12 +1,11 @@
 package com.xjj.tools.bigdata.tunnel.commands;
 
-import com.xjj.tools.bigdata.tunnel.utils.Func;
-import com.xjj.tools.bigdata.tunnel.utils.GlobalValue;
-import com.xjj.tools.bigdata.tunnel.utils.PostParam;
-import com.xjj.tools.bigdata.tunnel.utils.RESTfulAgent;
+import com.xjj.tools.bigdata.tunnel.utils.*;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
+import org.fusesource.jansi.Ansi;
+import org.jline.reader.LineReader;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -17,6 +16,8 @@ import java.io.File;
  */
 @CliCompent
 public class UploadCommand extends BaseCommand {
+    @AutoSetValue
+    protected LineReader reader;
     @CliMethod(key = "uploadCsvFile",description = "上传CSV格式文件到仓库中",checkSession = true)
     public boolean uploadCsvFile(String csvFile,
                                  String tableName,
@@ -45,16 +46,55 @@ public class UploadCommand extends BaseCommand {
             columnSplitChar = ",";
         if(Func.isEmpty(rowSplitChar))
             rowSplitChar = "\n";
+
         try {
-            MultipartEntity part = new MultipartEntity();
+            CustomMultipartEntity part = new CustomMultipartEntity();
             part.addPart("appid", new StringBody(tableName));
             part.addPart("overwrite",new StringBody(rewrite));
             part.addPart("columnSplitChar",new StringBody(columnSplitChar));
             part.addPart("rowSplitChar",new StringBody(rowSplitChar));
             part.addPart("hdfs",new StringBody(hdfs));
             part.addPart("datafile",new FileBody(file,"application/octet-stream","UTF-8"));
-            String content = RESTfulAgent.getInstance().doMultipartPost(GlobalValue.DATA_UPLOAD_API,part);
-            yellow(content);
+            //String content = RESTfulAgent.getInstance().doMultipartPost(GlobalValue.DATA_UPLOAD_API,part);
+            //yellow(content);
+            final long fsize = file.length();
+            yellow("正准备上传数据，数据大小："+Func.getFileSize(fsize));
+            RESTfulAgent.getInstance().doMultipartPost(GlobalValue.DATA_UPLOAD_API,
+                    part,
+                    new OnDoPostMultiDataListener() {
+                        public void readyUpload(){
+                            resetPrint();
+                            yellow("正在发送数据");
+                        }
+                        @Override
+                        public void transferred(long num) {
+                            printProgress(num,fsize);
+                        }
+
+                        @Override
+                        public void uploadFail(int statusCode, String errorMessage) {
+                            resetPrint();
+                            red("数据上传失败，错误代码："+statusCode+"，原因："+errorMessage);
+                            reader.printAbove("");
+                        }
+
+                        @Override
+                        public void uploadSuccess(String response) {
+                            resetPrint();
+                            try {
+                                JSONObject result = new JSONObject(response);
+                                if(result.getInt("errorCode")==0){
+                                    yellow(result.getString("message"));
+                                }else{
+                                    red(result.getString("message"));
+                                }
+                            }catch(Exception ex){
+                                red(ex.getMessage());
+                            }
+                            reader.printAbove("");
+                        }
+                    }
+            );
         }catch(Exception ex){
             red(ex.getMessage());
         }

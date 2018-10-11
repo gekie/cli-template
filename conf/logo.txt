@@ -4,4 +4,4 @@
 [33m*                                     *
 [33m=======================================
 [34mVersion:1.0.1
-[34m@Copyright 2018 Xjjrj Cloud Computing Co., Ltd. All rights reserved.
+[34m@Copyright 2018 Xjjrj Cloud Computing Co., Ltd. All rights reserved.

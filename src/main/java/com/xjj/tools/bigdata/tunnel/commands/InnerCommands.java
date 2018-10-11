@@ -301,5 +301,16 @@ public class InnerCommands extends BaseCommand{
     public boolean clean()throws IOException{
         return true;
     }
+    @CliMethod(description = "测试数数",checkSession = false)
+    public boolean calc(int max,int sleep) throws InterruptedException{
 
+        for(int i=0;i<max;i++){
+            print(i,1, Ansi.Color.BLUE, Ansi.Color.WHITE);
+            print("/");
+            print(max, Ansi.Color.GREEN);
+            Thread.sleep(sleep);
+        }
+        reader.printAbove("");
+        return true;
+    }
 }

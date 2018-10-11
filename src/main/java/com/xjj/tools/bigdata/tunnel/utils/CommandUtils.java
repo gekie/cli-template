@@ -3,6 +3,7 @@ package com.xjj.tools.bigdata.tunnel.utils;
 import com.xjj.tools.bigdata.tunnel.commands.*;
 
 import org.fusesource.jansi.Ansi;
+import org.fusesource.jansi.Ansi.Color;
 import org.jline.builtins.Completers;
 import org.jline.reader.*;
 import org.jline.reader.impl.completer.ArgumentCompleter;
@@ -94,15 +95,21 @@ public class CommandUtils {
         return sqlStart.indexOf(cmd+";")!=-1;
     }
     public static String getShellPrompt(boolean moreLine){
-        //String prompt = "[@|green xjj-bigdata|@@@|yellow "+GlobalValue.userName+"|@:";
-        String prompt = "[\u001B[32mxjj-bigdata@\u001B[33m"+GlobalValue.userName+"\u001B[32m:";
+        String prompt = "[@|green xjj-bigdata|@@@|yellow "+GlobalValue.userName+"|@:";
+        //String prompt = "[\u001B[32mxjj-bigdata@\u001B[33m"+GlobalValue.userName+"\u001B[32m:";
         if(!moreLine)
-            return Ansi.ansi().eraseLine().render(prompt+">").toString();
+            return Ansi.ansi().render(prompt+">").toString();
         else{
             prompt = "[xjj-bigdata@"+GlobalValue.userName+"..:>";
             prompt= prompt.replaceAll(".",".");
             return "\u001b[33m"+prompt+">";
         }
+    }
+    private void print(Object obj){
+        System.out.print(obj);
+    }
+    private void println(Object obj){
+        System.out.println(obj);
     }
     private void initReader() throws IOException {
         Terminal terminal = TerminalBuilder.builder().system(true).jansi(true).build();
@@ -118,6 +125,7 @@ public class CommandUtils {
         reader = LineReaderBuilder.builder()
                 .terminal(terminal)
                 .variable(LineReader.HISTORY_FILE,GlobalValue.COMMAND_HISTORY_FILE)
+                .variable(LineReader.HISTORY_FILE_SIZE,Config.getInstance().getInteger("command_history_max_size"))
                 .completer(new ArgumentCompleter(completors))
                 .appName("xjj-bigdata").build();
     }
@@ -284,14 +292,20 @@ public class CommandUtils {
                         //保留参数名这一选项由编译开关javac -parameters打开，默认是关闭的。
                         if(psCount!=(cmds.length-1)&&!(Boolean)ret) {
                             String buf = method + "参数不完整，参考：" + method ;
+                            print(Ansi.ansi().fgRed().a(method + "参数不完整，参考：" + method).reset());
                             for(int i = 0;i<parameters.length;i++){
                                 Parameter p = parameters[i];
-                                buf+=" <"+p.getName()+">";
+                                print(" ");
+                                print(Ansi.ansi().bgGreen().fgBlack().a("<"+p.getName()+">").reset());
                             }
-                            System.err.println(buf);
+                            print("\n");
                         }
                     }else{
-                        System.err.println("未登录状态，使用login指令进行登录：login <account> <password>");
+                        //System.err.println("未登录状态，使用login指令进行登录：login <account> <password>");
+                        System.out.print(Ansi.ansi(50).fgRed().a("未登录状态，使用login指令进行登录："));
+                        System.out.print(Ansi.ansi().fgYellow().a("login ").reset());
+                        System.out.print(Ansi.ansi().bgGreen().fgBlack().a("<account>").reset().a(" "));
+                        System.out.println(Ansi.ansi().bgGreen().fgBlack().a("<password>").reset());
                     }
                 }else {
                     ret = bean.getMethod().invoke(bean.getObject(), ps);
@@ -302,12 +316,13 @@ public class CommandUtils {
                     }
                     //保留参数名这一选项由编译开关javac -parameters打开，默认是关闭的。
                     if(psCount!=(cmds.length-1)&&!(Boolean)ret) {
-                        String buf = method + "参数不完整，参考：" + method ;
+                        print(Ansi.ansi().fgRed().a(method + "参数不完整，参考：" + method).reset());
                         for(int i = 0;i<parameters.length;i++){
                             Parameter p = parameters[i];
-                            buf+=" <"+p.getName()+">";
+                            print(" ");
+                            print(Ansi.ansi().bgGreen().fgBlack().a("<"+p.getName()+">").reset());
                         }
-                        System.err.println(buf);
+                        print("\n");
                     }
                 }
             } catch (Exception e){

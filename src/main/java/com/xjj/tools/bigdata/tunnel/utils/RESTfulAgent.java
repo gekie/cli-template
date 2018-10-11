@@ -460,6 +460,58 @@ public class RESTfulAgent {
         }
         return serverResponse;
     }
+    public void doMultipartPost(final String url, final CustomMultipartEntity part, final OnDoPostMultiDataListener listener){
+        MessageExecutorService.getInstance().execute(new Runnable() {
+            @Override
+            public void run() {
+                String serverResponse = null;
+                HttpClient httpClient = new DefaultHttpClient();
+                HttpContext httpContext = new BasicHttpContext();
+                HttpPost httpPost = new HttpPost(url);
+                try {
+                    if(GlobalValue.ticket!=null)
+                        httpPost.addHeader("ticket",GlobalValue.ticket);
+                    if(GlobalValue.sessionId!=null){
+                        httpPost.addHeader("Cookie",GlobalValue.sessionId);
+                    }
+                    part.setListener(new CustomMultipartEntity.ProgressListener() {
+                        @Override
+                        public void transferred(long num) {
+                            listener.transferred(num);
+                        }
+                    });
+                    httpPost.setEntity(part);
+                    listener.readyUpload();
+                    HttpResponse response = httpClient.execute(httpPost, httpContext);
+                    int code = response.getStatusLine().getStatusCode();
+                    if (code == HttpURLConnection.HTTP_OK) {
+                        serverResponse = EntityUtils.toString(response.getEntity());
+                        listener.uploadSuccess(serverResponse);
+                    }else{
+                        listener.uploadFail(code,"");
+                    }
+                }catch(OutOfMemoryError er){
+                    listener.uploadFail(-1,"内存溢出");
+                }catch(Error er){
+                    listener.uploadFail(-1,"出错了");
+                }catch(SocketTimeoutException ex){
+                    listener.uploadFail(-1,"连接服务器超时");
+                }catch(SocketException ex){
+                    ex.printStackTrace();
+                    listener.uploadFail(-1,"网络连接不可用");
+                } catch (MalformedURLException e) {
+                    listener.uploadFail(-1,"连接服务器异常，请检查网络");
+                } catch (IOException e) {
+                    listener.uploadFail(-1,"网络数据读写异常，请检查网络");
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    listener.uploadFail(-1,"网络连接不可用");
+                }finally {
+
+                }
+            }
+        });
+    }
     public void doPost(final String url, final String jsonParam, final OnDoPostDataListener listener) {
         Thread postThread = new Thread(new Runnable() {
             //protected String doInBackground(String... pms) {

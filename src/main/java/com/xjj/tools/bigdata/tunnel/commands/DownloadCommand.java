@@ -1,6 +1,8 @@
 package com.xjj.tools.bigdata.tunnel.commands;
 
 import com.xjj.tools.bigdata.tunnel.utils.*;
+import org.fusesource.jansi.Ansi;
+import org.jline.reader.LineReader;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,6 +12,8 @@ import java.io.IOException;
  */
 @CliCompent
 public class DownloadCommand extends BaseCommand {
+    @AutoSetValue
+    protected LineReader reader;
     @CliMethod(description = "从仓库中导出CSV格式数据，保存到本地文件")
     public boolean downloadCsvFile(
             String appid,
@@ -43,28 +47,29 @@ public class DownloadCommand extends BaseCommand {
 
             @Override
             public String onFileContentLength(long size, String filename) {
+                print(Ansi.ansi().cursorDownLine());
                 yellow("准备保存位置："+path+filename);
+                yellow("数据大小："+Func.getFileSize(size));
                 return path+filename;
             }
 
             @Override
             public void onDownloadProcess(long num, long totalSize) {
-                green(num+"/"+totalSize);
+                printProgress(num,totalSize);
             }
 
             @Override
             public void onDownloadSuccess(String result) {
+                print("\n");
                 yellow(result);
-                try {
-                    CommandUtils.getInstance().getConsoleReader().readLine();
-                }catch (Exception ex){
-                    ex.printStackTrace();
-                }
+                reader.printAbove("");
             }
 
             @Override
             public void onDownloadFail(String errorMessage) {
+                print(Ansi.ansi().cursorDownLine());
                 red(errorMessage);
+                reader.printAbove("");
             }
         });
         return true;

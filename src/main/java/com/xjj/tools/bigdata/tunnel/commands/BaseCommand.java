@@ -1,5 +1,6 @@
 package com.xjj.tools.bigdata.tunnel.commands;
 import org.fusesource.jansi.Ansi;
+import org.jline.reader.LineReader;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -12,22 +13,38 @@ import java.util.List;
  * Created by cjh on 18/9/20.
  */
 public class BaseCommand {
-    protected void setFgColor(Ansi.Color color){
-        System.out.print(Ansi.ansi().eraseLine().fg(color).a(""));
+    protected void print(Object text,Ansi.Color fgColor){
+        print(text,0,null,fgColor);
     }
-    protected void resetColor(){
-        System.out.print(Ansi.ansi().reset().a(""));
+    protected void resetPrint(){
+        println(Ansi.ansi().reset());
     }
-
-    protected void println(Object text,Ansi.Color color){
-        setFgColor(color);
-        System.out.println(text);
-        resetColor();
+    protected void println(Object text,Ansi.Color fgColor){
+        println(text,0,null,fgColor);
     }
-    protected void print(Object text,Ansi.Color color){
-        setFgColor(color);
-        System.out.print(text);
-        resetColor();
+    protected Ansi getAnsi(int column,Ansi.Color bgColor,Ansi.Color fgColor){
+        Ansi ansi =  Ansi.ansi();
+        if(bgColor!=null)
+            ansi.bg(bgColor);
+        if(fgColor!=null)
+            ansi.fg(fgColor);
+        if(column!=0)
+            ansi.cursorToColumn(column);
+        return ansi;
+    }
+    protected void print(Object text,int column){
+        Ansi ansi = getAnsi(column,null,null);
+        print(ansi.a(text));
+    }
+    protected void print(Object text,int column,Ansi.Color bgColor,Ansi.Color fgColor){
+        print(getAnsi(column,bgColor,fgColor).a(text).reset());
+    }
+    protected void print(Object text,int column,Ansi.Color fgColor){
+        print(getAnsi(column,null,fgColor).a(text).reset());
+    }
+    protected void println(Object text,int column,Ansi.Color bgColor,Ansi.Color fgColor){
+        print(text,column,bgColor,fgColor);
+        System.out.println();
     }
     protected void print(Object text){
         System.out.print(text);
@@ -39,10 +56,11 @@ public class BaseCommand {
         System.err.println(text);
     }
     protected void green(Object text){
-        println(text, Ansi.Color.GREEN);
+        //println(text, Ansi.Color.GREEN);
+        println(text,Ansi.Color.GREEN);
     }
     protected void yellow(Object text){
-        println(text, Ansi.Color.YELLOW);
+        println(text,Ansi.Color.YELLOW);
     }
     protected void red(Object text){
         println(text, Ansi.Color.RED);
@@ -152,5 +170,14 @@ public class BaseCommand {
         });
         JSONArray _items = new JSONArray(list);
         return _items;
+    }
+
+    protected void printProgress(long num,long max){
+        print("[",1);
+        String p = Integer.toString(Math.round(num/max)*100)+"%";
+        print(p,2, Ansi.Color.BLUE, Ansi.Color.WHITE);
+        print("/");
+        print("100%", Ansi.Color.YELLOW);
+        print("]");
     }
 }
