@@ -1,17 +1,19 @@
 package com.xjj.tools.bigdata.tunnel.utils;
 
 import com.xjj.tools.bigdata.tunnel.commands.*;
-import jline.console.ConsoleReader;
-import jline.console.completer.ArgumentCompleter;
-import jline.console.completer.Completer;
-import jline.console.completer.FileNameCompleter;
-import jline.console.completer.StringsCompleter;
-import jline.console.history.FileHistory;
-import jline.console.history.History;
+
 import org.fusesource.jansi.Ansi;
+import org.jline.builtins.Completers;
+import org.jline.reader.*;
+import org.jline.reader.impl.completer.ArgumentCompleter;
+import org.jline.reader.impl.completer.StringsCompleter;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
+import org.jline.utils.AttributedString;
+import org.jline.utils.AttributedStyle;
 import org.reflections.Reflections;
 
-import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -25,7 +27,8 @@ public class CommandUtils {
     private Map<String,ExecutorBean> mapp = new TreeMap<String,ExecutorBean>();
     private static CommandUtils instance;
     private String inputLine;
-    private ConsoleReader reader;
+    //private ConsoleReader reader;
+    private LineReader reader;
     private CommandUtils(){
 
     }
@@ -91,19 +94,19 @@ public class CommandUtils {
         return sqlStart.indexOf(cmd+";")!=-1;
     }
     public static String getShellPrompt(boolean moreLine){
-        String prompt = "[@|green xjj-bigdata|@@@|yellow "+GlobalValue.userName+"|@:";
+        //String prompt = "[@|green xjj-bigdata|@@@|yellow "+GlobalValue.userName+"|@:";
+        String prompt = "[\u001B[32mxjj-bigdata@\u001B[33m"+GlobalValue.userName+"\u001B[32m:";
         if(!moreLine)
             return Ansi.ansi().eraseLine().render(prompt+">").toString();
         else{
-            prompt = "[xjj-bigdata@"+GlobalValue.userName+":";
+            prompt = "[xjj-bigdata@"+GlobalValue.userName+"..:>";
             prompt= prompt.replaceAll(".",".");
-            //return Ansi.ansi().eraseLine().render(prompt+">").toString();
-            return prompt+">";
+            return "\u001b[33m"+prompt+">";
         }
     }
-    private void initCompletor(){
+    private void initReader() throws IOException {
+        Terminal terminal = TerminalBuilder.builder().system(true).jansi(true).build();
         List<Completer> completors = new ArrayList<Completer>();
-
         Iterator<String> keys = mapp.keySet().iterator();
         String[] arrs = new String[mapp.size()];
         int i = 0;
@@ -111,63 +114,68 @@ public class CommandUtils {
             arrs[i++] = keys.next();
         }
         completors.add(new StringsCompleter(arrs));
-        completors.add(new FileNameCompleter());
-        reader.addCompleter(new ArgumentCompleter(completors));
+        completors.add(new Completers.FileNameCompleter());
+        reader = LineReaderBuilder.builder()
+                .terminal(terminal)
+                .variable(LineReader.HISTORY_FILE,GlobalValue.COMMAND_HISTORY_FILE)
+                .completer(new ArgumentCompleter(completors))
+                .appName("xjj-bigdata").build();
     }
-    public ConsoleReader getConsoleReader(){
+    public LineReader getConsoleReader(){
         return reader;
     }
     public void listenInput(String[] args){
         try {
             GlobalValue.init();
-            reader = new ConsoleReader();
-            FileHistory history = new FileHistory(new File(GlobalValue.COMMAND_HISTORY_FILE));
-            history.setMaxSize(Config.getInstance().getInteger("command_history_max_size"));
-            reader.setHistory(history);
-            initCompletor();
+            initReader();
             String line = null;
             boolean moreLine = false;
             boolean isSQLLine = false;
             StringBuilder stringBuf = new StringBuilder();
             do {
                 line = reader.readLine(getShellPrompt(moreLine));
-                if(Func.isEmpty(line)) continue;
-                if(!isSQLLine&&isSQLCommand(line))
+                if (Func.isEmpty(line)) continue;
+                if (!isSQLLine && isSQLCommand(line))
                     isSQLLine = true;
-                if(isSQLLine) {
-                    stringBuf.append(line+" ");
+                if (isSQLLine) {
+                    stringBuf.append(line + " ");
                     // 只有;结束，才执行
                     if (line.trim().endsWith(";")) {
                         String commandStr = stringBuf.toString();
                         inputLine = commandStr;
                         //System.out.println(commandStr);
                         long intime = System.currentTimeMillis();
-                        if(commandStr.toUpperCase().startsWith("SELECT"))
-                            callMethod("querySQL",new String[]{commandStr});
-                        else if(commandStr.toUpperCase().startsWith("CREATE"))
-                            callMethod("createSQL",new String[]{commandStr});
+                        if (commandStr.toUpperCase().startsWith("SELECT"))
+                            callMethod("querySQL", new String[]{commandStr});
+                        else if (commandStr.toUpperCase().startsWith("CREATE"))
+                            callMethod("createSQL", new String[]{commandStr});
                         long outtime = System.currentTimeMillis();
                         System.out.println("--------------------");
-                        System.out.println("SQL Execute use "+(outtime-intime)+"ms.");
+                        System.out.println("SQL Execute use " + (outtime - intime) + "ms.");
                         // 清空
                         stringBuf = new StringBuilder();
                         moreLine = false;
                         isSQLLine = false;
-                        history.flush();
+                        //history.flush();
                     } else {
                         moreLine = true;
                     }
-                }else{
+                } else {
                     //指令表
                     inputLine = line;
                     callMethod(line);
                     moreLine = false;
                     stringBuf = new StringBuilder();
-                    history.flush();
+                    //history.flush();
                 }
-            }while(line!=null && !line.equals("exit"));
-            history.flush();
+            } while (line != null && !line.equals("exit"));
+            //history.flush();
             System.exit(0);
+        }catch(UserInterruptException ex) {
+            ex.printStackTrace();
+        }catch (EndOfFileException ex){
+            ex.printStackTrace();
+            return;
         }catch (Exception ex){
             ex.printStackTrace();
         }
@@ -201,6 +209,7 @@ public class CommandUtils {
     }
     public void callMethod(String input){
         if(Func.isEmpty(input)) return;
+        //if(input.startsWith("history")) return;
         String[] cmds = input.split(" ");
         String method = cmds[0];
         if(method.toLowerCase().equals("show")){

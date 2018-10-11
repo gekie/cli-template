@@ -1,16 +1,14 @@
 package com.xjj.tools.bigdata.tunnel.commands;
 
 import com.xjj.tools.bigdata.tunnel.utils.*;
-import jline.console.ConsoleReader;
-import jline.console.history.FileHistory;
 import org.fusesource.jansi.Ansi;
+import org.jline.reader.History;
+import org.jline.reader.LineReader;
+import org.jline.reader.impl.history.DefaultHistory;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,7 +25,7 @@ public class InnerCommands extends BaseCommand{
     @AutoSetValue
     private String userName;
     @AutoSetValue
-    private ConsoleReader reader;
+    private LineReader reader;
 
     @CliMethod(description = "登录大数据平台",checkSession = false)
     public boolean login(String account,String password){
@@ -239,10 +237,25 @@ public class InnerCommands extends BaseCommand{
     @CliMethod(description = "查看或清空输入历史列表",checkSession = false,calcRequestTime = false)
     public boolean history(String clean) throws IOException{
         if(!Func.isEmpty(clean)&&clean.equals("-c")){
+            /*
             println("command history clear");
+            reader.getHistory()
             FileHistory history = (FileHistory)reader.getHistory();
             history.clear();
             history.flush();
+            */
+
+            //reader.runMacro(reader.getHistory().get(1));
+            History history = reader.getHistory();
+            File file = new File(GlobalValue.COMMAND_HISTORY_FILE);
+            if(file.exists()){
+                FileWriter fileWriter =new FileWriter(file);
+                fileWriter.write("");
+                fileWriter.flush();
+                fileWriter.close();
+            }
+            history.load();
+            println("command history clear");
         }
         try {
             FileReader m = new FileReader(new File(GlobalValue.COMMAND_HISTORY_FILE));
@@ -250,7 +263,8 @@ public class InnerCommands extends BaseCommand{
             String line = bf.readLine();
             int i = 1;
             while(line!=null){
-                yellow(i+"  "+line);
+                String[] ls = line.split(":");
+                yellow(i+"  "+ls[1]);
                 line = bf.readLine();
                 i++;
             }
@@ -284,8 +298,8 @@ public class InnerCommands extends BaseCommand{
         return true;
     }
     @CliMethod(description = "清屏操作",checkSession = false,calcRequestTime = false)
-    public void clean()throws IOException{
-        reader.clearScreen();
+    public boolean clean()throws IOException{
+        return true;
     }
 
 }

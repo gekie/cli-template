@@ -1,5 +1,9 @@
 package com.xjj.tools.bigdata.tunnel.utils;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -39,5 +43,25 @@ public class Func {
     }
     public static boolean isEmpty(String str){
         return str==null||str.trim().length()==0;
+    }
+
+    public static String readFile(String file){
+        try{
+            FileInputStream fileInputStream = new FileInputStream(file);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int len = 0;
+            while ((len = fileInputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, len);
+            }
+            byte[] data = outputStream.toByteArray();
+            fileInputStream.close();
+            return new String(data,"UTF-8");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
