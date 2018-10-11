@@ -14,7 +14,7 @@ import java.io.IOException;
 public class DownloadCommand extends BaseCommand {
     @AutoSetValue
     protected LineReader reader;
-    @CliMethod(description = "从仓库中导出CSV格式数据，保存到本地文件")
+    @CliMethod(description = "从仓库中导出CSV格式数据，保存到本地文件",calcRequestTime = false)
     public boolean downloadCsvFile(
             String appid,
             String sql,
@@ -42,7 +42,8 @@ public class DownloadCommand extends BaseCommand {
         RESTfulAgent.getInstance().donwloadFile(GlobalValue.exportCSV_API, pm, new OnDownLoadListener() {
             @Override
             public void onReadyDownload() {
-                yellow("正在准备下载");
+                yellow("正在准备下载，等到服务端响应请求");
+                print(Ansi.ansi().cursorDownLine());
             }
 
             @Override

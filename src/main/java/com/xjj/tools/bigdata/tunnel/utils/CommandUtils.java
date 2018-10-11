@@ -30,6 +30,7 @@ public class CommandUtils {
     private String inputLine;
     //private ConsoleReader reader;
     private LineReader reader;
+    private boolean cursor;
     private CommandUtils(){
 
     }
@@ -142,7 +143,10 @@ public class CommandUtils {
             StringBuilder stringBuf = new StringBuilder();
             do {
                 line = reader.readLine(getShellPrompt(moreLine));
-                if (Func.isEmpty(line)) continue;
+                if (Func.isEmpty(line)){
+                    showCursor();
+                    continue;
+                }
                 if (!isSQLLine && isSQLCommand(line))
                     isSQLLine = true;
                 if (isSQLLine) {
@@ -363,5 +367,16 @@ public class CommandUtils {
         } else {
             return null;
         }
+    }
+    public void hideCursor(){
+        System.out.print("\u001B[?25l");
+        cursor = true;
+    }
+    public void showCursor(){
+        System.out.print("\u001B[?25h"); //显示光标
+        cursor=false;
+    }
+    public boolean isHideCursor(){
+        return cursor;
     }
 }

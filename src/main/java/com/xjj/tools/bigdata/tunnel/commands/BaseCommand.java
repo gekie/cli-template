@@ -1,4 +1,6 @@
 package com.xjj.tools.bigdata.tunnel.commands;
+import com.xjj.tools.bigdata.tunnel.utils.CommandUtils;
+import com.xjj.tools.bigdata.tunnel.utils.GlobalValue;
 import org.fusesource.jansi.Ansi;
 import org.jline.reader.LineReader;
 import org.json.JSONArray;
@@ -172,15 +174,22 @@ public class BaseCommand {
         return _items;
     }
 
+    protected void eraseLine(){
+        println(Ansi.ansi().cursorToColumn(1).eraseLine());
+    }
     protected void printProgress(long num,long max){
-        print("[", 1);
+        if(!CommandUtils.getInstance().isHideCursor()) {
+            CommandUtils.getInstance().hideCursor();
+            eraseLine();
+        }
+        print("[", 1, Ansi.Color.WHITE);
         String p = Integer.toString(Math.round((num / (float) max) * 100)) + "%";
-        print(" "+p+" ", 2, Ansi.Color.GREEN, Ansi.Color.YELLOW);
-        print("/");
+        print(p, 2,  Ansi.Color.GREEN);
+        print("/", Ansi.Color.WHITE);
         print("100%", Ansi.Color.YELLOW);
-        print(num+" byte",20);
-        print("/");
-        print(max+" byte", Ansi.Color.YELLOW);
-        print("]");
+        print(num,20);
+        print("/", Ansi.Color.WHITE);
+        print(max+" Bytes", Ansi.Color.YELLOW);
+        print("]", Ansi.Color.WHITE);
     }
 }
