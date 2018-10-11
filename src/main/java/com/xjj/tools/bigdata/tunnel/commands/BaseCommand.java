@@ -6,6 +6,7 @@ import org.jline.reader.LineReader;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.awt.*;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -175,21 +176,24 @@ public class BaseCommand {
     }
 
     protected void eraseLine(){
-        println(Ansi.ansi().cursorToColumn(1).eraseLine());
+        print(Ansi.ansi().cursorToColumn(1).eraseLine());
+    }
+    protected void moveCursorUp(){
+       print(Ansi.ansi().cursorUpLine());
     }
     protected void printProgress(long num,long max){
-        if(!CommandUtils.getInstance().isHideCursor()) {
-            CommandUtils.getInstance().hideCursor();
-            eraseLine();
-        }
-        print("[", 1, Ansi.Color.WHITE);
+        //if(!CommandUtils.getInstance().isHideCursor()) {
+        //    CommandUtils.getInstance().hideCursor();
+        //}
         String p = Integer.toString(Math.round((num / (float) max) * 100)) + "%";
-        print(p, 2,  Ansi.Color.GREEN);
-        print("/", Ansi.Color.WHITE);
-        print("100%", Ansi.Color.YELLOW);
-        print(num,20);
-        print("/", Ansi.Color.WHITE);
-        print(max+" Bytes", Ansi.Color.YELLOW);
-        print("]", Ansi.Color.WHITE);
+        Ansi ansi=Ansi.ansi().a(Ansi.Attribute.BLINK_OFF).cursorToColumn(0).eraseLine();
+        ansi.a("\t");
+        ansi.fg(Ansi.Color.WHITE).a("[ ");
+        ansi.fgGreen().a(p+"\t"+num);
+        ansi.fg(Ansi.Color.WHITE).a("/");
+        ansi.fgYellow().a(max+" Bytes");
+        ansi.fg(Ansi.Color.WHITE).a(" ]");
+        ansi.reset();
+        print(ansi);
     }
 }

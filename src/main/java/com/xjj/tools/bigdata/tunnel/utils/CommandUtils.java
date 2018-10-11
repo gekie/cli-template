@@ -370,6 +370,7 @@ public class CommandUtils {
     }
     public void hideCursor(){
         System.out.print("\u001B[?25l");
+
         cursor = true;
     }
     public void showCursor(){

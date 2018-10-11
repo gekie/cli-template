@@ -36,7 +36,7 @@ public class GlobalValue {
         String path = directory.getAbsolutePath();
         if(path.indexOf(File.separator+"bin")!=-1)
             path = path+File.separator+"..";
-        COMMAND_HISTORY_FILE = path+File.separator+"history";
+        COMMAND_HISTORY_FILE = path+File.separator+"history.log";
         File f = new File(COMMAND_HISTORY_FILE);
         if(!f.exists()){
             try {

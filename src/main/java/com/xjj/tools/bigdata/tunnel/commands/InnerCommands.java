@@ -301,16 +301,22 @@ public class InnerCommands extends BaseCommand{
     public boolean clean()throws IOException{
         return true;
     }
-    @CliMethod(description = "测试数数",checkSession = false)
-    public boolean calc(int max,int sleep) throws InterruptedException{
+    @CliMethod(description = "测试数数",checkSession = false,calcRequestTime = false)
+    public boolean calc(final int max,final int sleep) {
+        MessageExecutorService.getInstance().execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    for (int i = 0; i < max; i++) {
+                        printProgress(i, max);
+                        Thread.sleep(sleep);
+                    }
+                }catch (InterruptedException ex){}
+                print("\n");
+                reader.printAbove("运算完成");
+            }
+        });
 
-        for(int i=0;i<max;i++){
-            print(i,1, Ansi.Color.BLUE, Ansi.Color.WHITE);
-            print("/");
-            print(max, Ansi.Color.GREEN);
-            Thread.sleep(sleep);
-        }
-        reader.printAbove("");
         return true;
     }
 }

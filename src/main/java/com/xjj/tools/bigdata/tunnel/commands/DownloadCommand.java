@@ -42,15 +42,13 @@ public class DownloadCommand extends BaseCommand {
         RESTfulAgent.getInstance().donwloadFile(GlobalValue.exportCSV_API, pm, new OnDownLoadListener() {
             @Override
             public void onReadyDownload() {
-                yellow("正在准备下载，等到服务端响应请求");
-                print(Ansi.ansi().cursorDownLine());
+                reader.printAbove("正在准备下载，等到服务端响应请求");
             }
 
             @Override
             public String onFileContentLength(long size, String filename) {
-                print(Ansi.ansi().cursorDownLine());
-                yellow("准备保存位置："+path+filename);
-                yellow("数据大小："+Func.getFileSize(size));
+                reader.printAbove("准备保存位置："+path+filename);
+                reader.printAbove("数据大小："+Func.getFileSize(size));
                 return path+filename;
             }
 
@@ -62,13 +60,12 @@ public class DownloadCommand extends BaseCommand {
             @Override
             public void onDownloadSuccess(String result) {
                 print("\n");
-                yellow(result);
-                reader.printAbove("");
+                reader.printAbove(result);
             }
 
             @Override
             public void onDownloadFail(String errorMessage) {
-                print(Ansi.ansi().cursorDownLine());
+                print("\n");
                 red(errorMessage);
                 reader.printAbove("");
             }
