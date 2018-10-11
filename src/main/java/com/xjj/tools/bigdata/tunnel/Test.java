@@ -7,6 +7,6 @@ public class Test {
         AnsiConsole.systemInstall();
         System.out.println("dskflsaljdkfjalsdf");
         System.out.print("\u001B[2A\u001B[15C OK");
-        System.out.print("FFF");
+        System.out.println("FFF");
     }
 }
