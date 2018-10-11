@@ -146,7 +146,7 @@
                             <goal>java</goal>
                         </goals>
                         <configuration>
-                            <mainClass>com.xjj.tools.bigdata.tunnel.ConsoleMain</mainClass>
+                            <mainClass>com.xjj.tools.bigdata.tunnel.Test</mainClass>
                             <arguments>
                             </arguments>
                         </configuration>
