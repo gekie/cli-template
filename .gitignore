@@ -4,3 +4,8 @@ target/
 .DS_Store
 *.zip
 *.class
+download/
+history
+history.log
+upload/
+xjj-bigdata-tool.iml
