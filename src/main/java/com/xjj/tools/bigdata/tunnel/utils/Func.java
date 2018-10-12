@@ -1,9 +1,8 @@
 package com.xjj.tools.bigdata.tunnel.utils;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import org.json.JSONArray;
+
+import java.io.*;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -63,5 +62,67 @@ public class Func {
             e.printStackTrace();
         }
         return null;
+    }
+    public static void saveToFile(String content,String filename){
+        FileOutputStream fop = null;
+        File file = null;
+        try{
+            file = new File(filename);
+            fop = new FileOutputStream(file);
+            if(!file.exists())
+                file.createNewFile();
+            fop.write(content.getBytes("UTF-8"));
+            fop.flush();
+            fop.close();
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }finally{
+            try {
+                if (fop != null) {
+                    fop.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    public static JSONArray loadJSONFromFile(String filename){
+        File file = new File(filename);
+        JSONArray json = null;
+        if (file.exists()) {
+            try {
+                json = new JSONArray(Func.readFile(filename));
+            }catch(org.json.JSONException ex){
+                json = new JSONArray();
+            }
+        }else
+            json = new JSONArray();
+        return json;
+    }
+    public static Object parseParameterValue(String type,String value){
+        if (type.equals("int") || type.equals("java.lang.Integer")) {
+            return Integer.parseInt(value);
+        } else if (type.equals("long") || type.equals("java.lang.Long")) {
+            return Long.parseLong(value);
+        } else if (type.equals("float") || type.equals("java.lang.Float")) {
+            return Float.parseFloat(value);
+        } else if (type.equals("boolean") || type.equals("java.lang.Boolean")) {
+           return Boolean.parseBoolean(value);
+        } else {
+            return value;
+        }
+    }
+    public static Object initNormalValue(String type){
+        if (type.equals("int") || type.equals("java.lang.Integer")) {
+            return new Integer(0);
+        } else if (type.equals("long") || type.equals("java.lang.Long")) {
+            return new Long(0);
+        } else if (type.equals("float") || type.equals("java.lang.Float")) {
+            return new Float(0.0);
+        } else if (type.equals("boolean") || type.equals("java.lang.Boolean")) {
+            return new Boolean(false);
+        } else {
+            return null;
+        }
     }
 }

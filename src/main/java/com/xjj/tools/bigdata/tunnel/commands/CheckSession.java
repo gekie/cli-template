@@ -11,5 +11,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CheckSession {
-    public String method() default "checkSession";
+    String method() default "checkSession";
 }

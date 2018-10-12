@@ -4,15 +4,12 @@ import com.xjj.tools.bigdata.tunnel.utils.*;
 import org.fusesource.jansi.Ansi;
 import org.jline.reader.History;
 import org.jline.reader.LineReader;
-import org.jline.reader.impl.history.DefaultHistory;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.*;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -161,25 +158,52 @@ public class InnerCommands extends BaseCommand{
         yellow("使用使用 Xjj BigData Shell Tools，以下是支持的指令列表及使用参数：");
         println("---------------------");
         Map<String,ExecutorBean> maps = CommandUtils.getInstance().getCommandMaps();
+        String printed = "";
         for(Map.Entry<String, ExecutorBean> entry: maps.entrySet()){
             ExecutorBean bean = entry.getValue();
             if(bean.getCliMethod().show()) {
                 if(!Func.isEmpty(bean.getCliMethod().group())){
-                    print(bean.getCliMethod().group()+" ",Ansi.Color.CYAN);
+                    //print(bean.getCliMethod().group()+" ",Ansi.Color.CYAN);
+                    String group = bean.getCliMethod().group();
+                    if(printed.indexOf(group+";")==-1){
+                        printed+=group+";";
+                        println(group,Ansi.Color.CYAN);
+                        showGroupCommand(group);
+                    }
+                }else {
+                    print(entry.getKey(), Ansi.Color.CYAN);
+                    Parameter[] ps = bean.getMethod().getParameters();
+                    for (int i = 0; i < ps.length; i++) {
+                        print(" " + ps[i].getName(), Ansi.Color.YELLOW);
+                        print(":");
+                        print("<" + ps[i].getName() + ">", Ansi.Color.GREEN);
+                    }
+                    println("\r\n\t" + bean.getCliMethod().description());
                 }
-                print(entry.getKey(), Ansi.Color.CYAN);
-                Parameter[] ps = bean.getMethod().getParameters();
-                for (int i = 0; i < ps.length; i++) {
-                    print(" "+ps[i].getName(), Ansi.Color.YELLOW);
-                    print(":");
-                    print("<" + ps[i].getName() + ">", Ansi.Color.GREEN);
-                }
-                println("\r\n\t" + bean.getCliMethod().description());
             }
         }
         return true;
     }
 
+    private void showGroupCommand(String group){
+        Map<String,ExecutorBean> maps = CommandUtils.getInstance().getCommandMaps();
+        for(Map.Entry<String,ExecutorBean> entry:maps.entrySet()){
+            ExecutorBean bean = entry.getValue();
+            String parent = bean.getCliMethod().group();
+            if(!Func.isEmpty(parent)&&group.equalsIgnoreCase(parent)){
+                print("\t"+entry.getKey(), Ansi.Color.CYAN);
+                Parameter[] ps = bean.getMethod().getParameters();
+                for (int i = 0; i < ps.length; i++) {
+                    if(i>1) {
+                        print(" "+ps[i].getName(), Ansi.Color.YELLOW);
+                        print(":");
+                        print("<"+ps[i].getName()+">", Ansi.Color.GREEN);
+                    }
+                }
+                println(Ansi.ansi().fgGreen().a("\n\t\t")+bean.getCliMethod().description());
+            }
+        }
+    }
     private void _list(boolean show){
         JSONObject obj = RESTfulAgent.getInstance().getObject(GlobalValue.MY_TABLE_API);
         int errorCode = obj.getInt("errorCode");
@@ -302,18 +326,24 @@ public class InnerCommands extends BaseCommand{
         return true;
     }
     @CliMethod(description = "测试数数",checkSession = false,calcRequestTime = false)
-    public boolean calc(final int max,final int sleep) {
+    public boolean calc(final long max,final long sleep,long sep) {
+        yellow("准备上传数据[xjj_job]...");
+        yellow("数据大小：100G.");
+        yellow("数据上传进度");
+        if(sep==0)
+            sep = 1;
+        final long _sep = sep;
         MessageExecutorService.getInstance().execute(new Runnable() {
             @Override
             public void run() {
                 try {
-                    for (int i = 0; i < max; i++) {
+                    for (long i = 0; i < max; i+=_sep) {
                         printProgress(i, max);
                         Thread.sleep(sleep);
                     }
                 }catch (InterruptedException ex){}
                 print("\n");
-                reader.printAbove("运算完成");
+                reader.printAbove("数据上传完成");
             }
         });
 

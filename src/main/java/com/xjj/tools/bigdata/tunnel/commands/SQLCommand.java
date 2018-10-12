@@ -8,136 +8,12 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Created by admin on 2018/9/19.
  */
 @CliCompent
 public class SQLCommand extends BaseCommand{
-    //@CliMethod(description = "执行SQL入口",show = false)
-    public boolean selectSQL(String sql){
-        if(Func.isEmpty(sql)){
-            return false;
-        }
-        /*
-        if(Func.isEmpty(GlobalValue.appid)){
-            red("您还没进入项目空间，请使用 use <appid>进入项目空间");
-            return false;
-        }*/
-        sql = sql.replaceAll(";","");
-        PostParam pm = new PostParam();
-        pm.addParam("sql",sql);
-        pm.addParam("appid", GlobalValue.appid);
-        JSONObject result = RESTfulAgent.getInstance().loadObject(GlobalValue.QUERY_SQL_API,pm);
-        //String api = "http://202.100.241.122:9096/xxd/queryBySQL";
-        //JSONObject result = RESTfulAgent.getInstance().loadObject(api,pm);
-        int errorCode = result.getInt("errorCode");
-        if(errorCode==0){
-            JSONArray items = result.getJSONArray("items");
-            if(items.length()==0){
-                println("没有数据.");
-            }
-            boolean printHead = false;
-            List<JSONObject> heads = getFields(sql);
-            if(heads==null) heads = new ArrayList<>();
-            for(int i = 0;i<items.length();i++){
-                JSONObject item = items.getJSONObject(i);
-                Iterator<String> keys = item.keys();
-                while (keys.hasNext()){
-                    String key = keys.next();
-                    String value = " "+item.get(key).toString()+" ";
-                    value = value.replaceAll("\r","").replaceAll("\n","");
-                    int fieldLen = getStringLen(key);
-                    if(!printHead) {
-                        JSONObject h = getHeader(key,heads);
-                        if(h==null){
-                            h = new JSONObject();
-                            h.put("field",key);
-                            heads.add(h);
-                        }
-                        int maxLen = getStringLen(value);
-                        if(maxLen<fieldLen)
-                            maxLen =fieldLen;
-                        if(maxLen>100)
-                            maxLen = 100;
-                        h.put("maxLen",maxLen);
-
-                    }else{
-                        JSONObject h = getHeader(key,heads);
-                        int _maxLen = getStringLen(value);
-                        if(_maxLen<fieldLen)
-                            _maxLen = fieldLen;
-                        if(_maxLen>100)
-                            _maxLen=100;
-                        int maxLen = h.getInt("maxLen");
-                        if(maxLen<_maxLen){
-                            h.put("maxLen",_maxLen);
-                        }
-
-                    }
-                }
-                printHead = true;
-            }
-            for(JSONObject obj:heads){
-                //print(obj.getString("field")+"("+obj.getInt("maxLen")+")\t│", Ansi.Color.YELLOW);
-                int maxLen = obj.getInt("maxLen");
-                if(maxLen<10)
-                    maxLen = 10;
-                String field = obj.getString("field");
-                print(field, Ansi.Color.YELLOW);
-                String blank = getBlankString(maxLen-getStringLen(field));
-                print(blank+"│", Ansi.Color.YELLOW);
-            }
-            print("\r\n");
-            for(JSONObject obj:heads){
-                //print(obj.getString("field")+"("+obj.getInt("maxLen")+")\t│", Ansi.Color.YELLOW);
-                int maxLen = obj.getInt("maxLen");
-                if(maxLen<10)
-                    maxLen = 10;
-                String blank = getBlankString(maxLen,"─");
-                print(blank+"│", Ansi.Color.YELLOW);
-            }
-            print("\r\n");
-            //select "id","title" from "xjjoa2" limit 10;
-            //select "id","title","comefrom","implService","starttime" from "xjjoa2" limit 12;
-            for(int i=0;i<items.length();i++){
-                JSONObject item = items.getJSONObject(i);
-                for(JSONObject obj:heads){
-                    int maxLen = obj.getInt("maxLen");
-                    if(maxLen<10)
-                        maxLen = 16;
-                    String value = " "+item.get(obj.getString("field")).toString()+ " ";
-                    value = value.replaceAll("\r","").replaceAll("\n","");
-
-                    int _maxLen =value.length();// getStringLen(value);
-                    if(_maxLen>50){
-                        _maxLen = 50;
-                        value = value.substring(0,47)+"...";
-                    }
-                    print(value);
-                    int len = maxLen-_maxLen;
-                    String blank = getBlankString(len);
-                    print(blank+"┼", Ansi.Color.YELLOW);
-                }
-                print("\r\n");
-            }
-            for(JSONObject obj:heads){
-                //print(obj.getString("field")+"("+obj.getInt("maxLen")+")\t│", Ansi.Color.YELLOW);
-                int maxLen = obj.getInt("maxLen");
-                if(maxLen<10)
-                    maxLen = 10;
-                String blank = getBlankString(maxLen,"─");
-                print(blank+"┴", Ansi.Color.YELLOW);
-            }
-            print("\r\n");
-            println("fetch "+items.length()+" rows.");
-        }else{
-            red(result.getString("message"));
-        }
-        return true;
-    }
     @CliMethod(description = "执行SQL入口",show=false,checkSession = false)
     public boolean querySQL(String sql){
         if(Func.isEmpty(sql)){
@@ -153,8 +29,6 @@ public class SQLCommand extends BaseCommand{
         pm.addParam("sql",sql);
         pm.addParam("appid", GlobalValue.appid);
         JSONObject result = RESTfulAgent.getInstance().loadObject(GlobalValue.QUERY_SQL_API,pm);
-        //String api = "http://202.100.241.122:9096/xxd/queryBySQL";
-        //JSONObject result = RESTfulAgent.getInstance().loadObject(api,pm);
         int errorCode = result.getInt("errorCode");
         if(errorCode==0){
             JSONArray items = result.getJSONArray("items");

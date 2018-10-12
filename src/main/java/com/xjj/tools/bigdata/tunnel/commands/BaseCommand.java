@@ -1,12 +1,8 @@
 package com.xjj.tools.bigdata.tunnel.commands;
 import com.xjj.tools.bigdata.tunnel.utils.CommandUtils;
-import com.xjj.tools.bigdata.tunnel.utils.GlobalValue;
 import org.fusesource.jansi.Ansi;
-import org.jline.reader.LineReader;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import java.awt.*;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -182,11 +178,13 @@ public class BaseCommand {
        print(Ansi.ansi().cursorUpLine());
     }
     protected void printProgress(long num,long max){
-        //if(!CommandUtils.getInstance().isHideCursor()) {
-        //    CommandUtils.getInstance().hideCursor();
-        //}
+        Ansi ansi=Ansi.ansi().a(Ansi.Attribute.BLINK_OFF).cursorToColumn(0);
+        if(!CommandUtils.getInstance().isHideCursor()) {
+            CommandUtils.getInstance().hideCursor();
+            ansi.eraseLine();
+        }
         String p = Integer.toString(Math.round((num / (float) max) * 100)) + "%";
-        Ansi ansi=Ansi.ansi().a(Ansi.Attribute.BLINK_OFF).cursorToColumn(0).eraseLine();
+
         ansi.a("\t");
         ansi.fg(Ansi.Color.WHITE).a("[ ");
         ansi.fgGreen().a(p+"\t"+num);

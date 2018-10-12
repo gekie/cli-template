@@ -11,10 +11,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CliMethod {
-    public String key() default "";
-    public String description() default "";
-    public boolean show() default true;
-    public boolean calcRequestTime() default true;
-    public boolean checkSession() default true;
-    public String group() default "";
+    String key() default "";
+    String description() default "";
+    boolean show() default true;
+    boolean calcRequestTime() default true;
+    boolean checkSession() default true;
+    String group() default "";
 }

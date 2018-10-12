@@ -1,9 +1,9 @@
 package com.xjj.tools.bigdata.tunnel.utils;
 
 public interface OnDownLoadListener {
-    public void onReadyDownload();
-    public String onFileContentLength(long size,String filename);
-    public void onDownloadProcess(long num,long totalSize);
-    public void onDownloadSuccess(String result);
-    public void onDownloadFail(String errorMessage);
+    void onReadyDownload();
+    String onFileContentLength(long size,String filename);
+    void onDownloadProcess(long num,long totalSize);
+    void onDownloadSuccess(String result);
+    void onDownloadFail(String errorMessage);
 }

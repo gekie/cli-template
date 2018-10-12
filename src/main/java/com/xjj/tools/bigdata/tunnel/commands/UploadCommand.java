@@ -1,10 +1,8 @@
 package com.xjj.tools.bigdata.tunnel.commands;
 
 import com.xjj.tools.bigdata.tunnel.utils.*;
-import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
-import org.fusesource.jansi.Ansi;
 import org.jline.reader.LineReader;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -18,9 +16,9 @@ import java.io.File;
 public class UploadCommand extends BaseCommand {
     @AutoSetValue
     protected LineReader reader;
-    @CliMethod(key = "uploadCsvFile",description = "上传CSV格式文件到仓库中",checkSession = true)
-    public boolean uploadCsvFile(String csvFile,
-                                 String tableName,
+    @CliMethod(key = "updata",description = "上传CSV格式文件到仓库中",checkSession = true)
+    public boolean uploadCsvFile(final String csvFile,
+                                 final String tableName,
                                  String columnSplitChar,
                                  String rowSplitChar,
                                  String rewrite,
@@ -59,6 +57,9 @@ public class UploadCommand extends BaseCommand {
             //yellow(content);
             final long fsize = file.length();
             yellow("正准备上传数据，数据大小："+Func.getFileSize(fsize));
+            final String _hdfs = hdfs;
+            final String _rewrite = rewrite;
+            final String _columnSplitChar = columnSplitChar;
             RESTfulAgent.getInstance().doMultipartPost(GlobalValue.DATA_UPLOAD_API,
                     part,
                     new OnDoPostMultiDataListener() {
@@ -76,6 +77,11 @@ public class UploadCommand extends BaseCommand {
                             resetPrint();
                             red("数据上传失败，错误代码："+statusCode+"，原因："+errorMessage);
                             reader.printAbove("");
+                            saveUploadLog(tableName,
+                                    csvFile,
+                                    _hdfs,_rewrite,_columnSplitChar,
+                                    "错误代码："+statusCode+"，原因："+errorMessage,
+                                    false);
                         }
 
                         @Override
@@ -85,8 +91,18 @@ public class UploadCommand extends BaseCommand {
                                 JSONObject result = new JSONObject(response);
                                 if(result.getInt("errorCode")==0){
                                     yellow(result.getString("message"));
+                                    saveUploadLog(tableName,
+                                            csvFile,
+                                            _hdfs,_rewrite,_columnSplitChar,
+                                            result.getString("message"),
+                                            true);
                                 }else{
                                     red(result.getString("message"));
+                                    saveUploadLog(tableName,
+                                            csvFile,
+                                            _hdfs,_rewrite,_columnSplitChar,
+                                            result.getString("message"),
+                                            false);
                                 }
                             }catch(Exception ex){
                                 red(ex.getMessage());
@@ -117,15 +133,6 @@ public class UploadCommand extends BaseCommand {
                 yellow(arr.getString(i).replaceAll("\n",""));
             }
         }
-        return true;
-    }
-    @CliMethod(description = "上传TXT文件到仓库中")
-    public boolean uploadTxtFile(String txtFile,String tableName,String columnSplitChar,String rowSplitChar){
-        return true;
-    }
-
-    @CliMethod(description = "上传Excel表格到仓库中")
-    public boolean uploadExcelFile(String excelFile,String tableName){
         return true;
     }
 
@@ -215,31 +222,62 @@ public class UploadCommand extends BaseCommand {
         }
         return true;
     }
-    @CliMethod(description = "上传JSON数据")
-    public boolean upsertJson(String json,String appid){
-        if(Func.isEmpty(GlobalValue.appid)&&Func.isEmpty(appid)){
-            return false;
+    private void saveUploadLog(String appid,String localFile,String hdfs,String rewrite,String columnSplitChar,String message,boolean success){
+        try {
+            String logFile = Config.getInstance().getBasePath() + "upload" + File.separator;
+            File file = new File(logFile);
+            if(!file.exists())
+                file.mkdirs();
+            logFile+="log";
+            JSONArray json =Func.loadJSONFromFile(logFile);
+            JSONObject app = GlobalValue.tables.get(appid);
+            JSONObject item = new JSONObject();
+            item.put("appid", appid);
+            item.put("file", localFile);
+            item.put("name", app.getString("base:name"));
+            item.put("hdfs", hdfs);
+            item.put("rewrite", rewrite);
+            item.put("columnSplitChar", columnSplitChar);
+            item.put("success", success);
+            item.put("message", message);
+            item.put("createtime", System.currentTimeMillis());
+            json.put(item);
+            Func.saveToFile(json.toString(), logFile);
+        }catch(Exception ex){
+            ex.printStackTrace();
         }
-        if(Func.isEmpty(json)){
-            return false;
-        }
-        JSONObject table =GlobalValue.tables.get(appid);
-        if(table==null){
-            red(String.format("<%s>不存在",appid));
-            return true;
-        }else{
-            try{
-                if(json.startsWith("{")) {
-                    JSONObject obj = new JSONObject(json);
-                }else if(json.startsWith("[")) {
-                    JSONArray list = new JSONArray(json);
-                }
-            }catch(Exception ex){
-                red("json数据结构不规范");
-                return true;
+    }
+
+    @CliMethod(group = "show",key="uplog", description = "查看下载的数据",calcRequestTime = false,checkSession = false)
+    public boolean upHistory(){
+        String logFile = Config.getInstance().getBasePath()+"upload"+File.separator+"log";
+        File file = new File(logFile);
+        if(file.exists()){
+            JSONArray items = new JSONArray(Func.readFile(logFile));
+            ConsoleTable table = new ConsoleTable(9,false,-1);
+            table.appendRow("AppId;仓库名称;上传时间;数据文件;覆盖;列分隔符;存入Hadoop;是否成功;消息");
+            items = sortJsonArray(items,"createtime",true);
+            String basePath = Config.getInstance().getBasePath();
+            for(int i=0;i<items.length();i++){
+                JSONObject item = items.getJSONObject(i);
+                String path = item.getString("file");
+                path = path.replace(basePath,"./");
+                table.appendRow(new Object[]{
+                        item.get("appid"),
+                        item.get("name"),
+                        Func.format(item.getLong("createtime")),
+                        path,
+                        item.get("rewrite"),
+                        item.get("columnSplitChar"),
+                        item.get("hdfs"),
+                        item.getBoolean("success")?"成功":"失败",
+                        item.get("message")
+                });
             }
-            JSONObject result = RESTfulAgent.getInstance().loadObject("",json);
-            return true;
+            yellow(table.toString());
+        }else{
+            yellow("没有上传记录");
         }
+        return true;
     }
 }
