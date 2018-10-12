@@ -64,16 +64,16 @@ public class DownloadCommand extends BaseCommand {
             @Override
             public void onDownloadSuccess(String result) {
                 print("\n");
-                reader.printAbove(result);
                 saveDownloadLog(appid,localFile,result,true);
+                reader.printAbove(result);
             }
 
             @Override
             public void onDownloadFail(String errorMessage) {
                 print("\n");
                 red(errorMessage);
-                reader.printAbove("");
                 saveDownloadLog(appid,localFile,errorMessage,false);
+                reader.printAbove("");
             }
         });
         return true;
@@ -82,7 +82,7 @@ public class DownloadCommand extends BaseCommand {
     private void saveDownloadLog(String appid,String localFile,String message,boolean success){
         try {
             String logFile = Config.getInstance().getBasePath() + "download" + File.separator + "log";
-            JSONArray json = Func.loadJSONFromFile(localFile);
+            JSONArray json = Func.loadJSONFromFile(logFile);
             JSONObject app = GlobalValue.tables.get(appid);
             JSONObject item = new JSONObject();
             item.put("appid", appid);
@@ -151,11 +151,20 @@ public class DownloadCommand extends BaseCommand {
                         0);
                 String[] items = null;
                 ConsoleTable table = null;
+                int headCount = 0;
+                int count = 0;
                 while((items=csvReader.readNext())!=null){
                     if(table==null) {
-                        table = new ConsoleTable(items.length, false, limit);
+                        headCount= items.length;
+                        table = new ConsoleTable(headCount, false, limit);
                     }
-                    table.appendRow(items);
+                    if(items.length<=headCount) {
+                        table.appendRow(items);
+                        count++;
+                    }
+                    if(limit>0&&count>=limit){
+                        break;
+                    }
                 }
                 yellow(table.toString());
                 csvReader.close();

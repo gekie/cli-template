@@ -31,6 +31,10 @@
     mvn clean package
     cd ./bin/
     ./startup.sh
+    
+    或者
+    mvn test -P main
+    
 
 ### 配置自动登录到大数据平台
     cd cli-template/conf
@@ -48,6 +52,18 @@
 
 ![help](doc/help.png)
     
-Shell命令行指令实现
+配置列表
 
-![command](doc/command.png) 
+![config](doc/config.png)
+
+Tab键自动完成指令输入
+
+![tab](doc/tab.png)
+
+Tab键选择文件列表
+
+![file-tab](doc/file-tab.png)
+
+下载进度，实现Console原位置print
+
+![download](doc/download.png)
