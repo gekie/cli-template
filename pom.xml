@@ -142,7 +142,6 @@
              </plugin>
         </plugins>
     </build>
-
     <profiles>
         <profile>
             <id>main</id>
