@@ -213,6 +213,7 @@ public class DownloadCommand extends BaseCommand {
                     buf.append("\n");
                 }
                 Func.saveToFile(buf.toString(),csv);
+                yellow("一共导出"+count+"个AppId配置");
             }
         }else{
             red(result.getString("message"));
