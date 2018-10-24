@@ -132,7 +132,7 @@ public class CommandUtils {
         reader = LineReaderBuilder.builder()
                 .terminal(terminal)
                 .variable(LineReader.HISTORY_FILE,GlobalValue.COMMAND_HISTORY_FILE)
-                .variable(LineReader.HISTORY_FILE_SIZE,Config.getInstance().getInteger("command_history_max_size"))
+                //.variable(LineReader.HISTORY_FILE_SIZE,Config.getInstance().getInteger("command_history_max_size"))
                 .completer(new ArgumentCompleter(completors))
                 .appName("xjj-bigdata").build();
     }
@@ -272,7 +272,10 @@ public class CommandUtils {
                     String type = parameters[i].getType().getName();
                     try {
                         String cmd = cmds[i+1];
-                        if(cmd.indexOf(":")!=-1) {
+                        if((cmd.startsWith("'")&&cmd.endsWith("'"))||(cmd.startsWith("\"")&&cmd.endsWith("\""))){
+                            cmd = cmd.replaceAll("'","");
+                            cmd = cmd.replaceAll("\"","");
+                        }else if(cmd.indexOf(":")!=-1) {
                             String[] cvs = cmd.split(":");
                             if(parameters[i].getName().equalsIgnoreCase(cvs[0])){
                                 cmd = cvs[1];

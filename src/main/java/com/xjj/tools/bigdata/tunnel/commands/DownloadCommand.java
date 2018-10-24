@@ -177,4 +177,46 @@ public class DownloadCommand extends BaseCommand {
         }
         return true;
     }
+    @CliMethod(group = "export",key="appid",description = "导出数据仓库配置信息")
+    public boolean exportAppconfig(String _,String prefix,String csv){
+        if(Func.isEmpty(prefix)){
+            return false;
+        }
+        if(Func.isEmpty(csv))
+            csv = Config.getInstance().getBasePath()+"download"+File.separator;
+        File file = new File(csv);
+        if(!file.exists()){
+            file.mkdirs();
+        }
+        csv = csv+prefix+"_app_config.csv";
+        String sql = "select * from \"app_config1\" where \"appid\" like '"+prefix+"%' order by \"name\"";
+        PostParam pm = new PostParam();
+        pm.addParam("sql",sql);
+        pm.addParam("appid", GlobalValue.appid);
+        JSONObject result = RESTfulAgent.getInstance().loadObject(GlobalValue.QUERY_SQL_API,pm);
+        int errorCode = result.getInt("errorCode");
+        if(errorCode==0){
+            JSONArray items = result.getJSONArray("items");
+            if(items.length()==0){
+                println("没有数据.");
+            }else{
+                int count = items.length();
+                StringBuffer buf = new StringBuffer();
+                buf.append("ROW,name,appid,onlineprovider,provider\n");
+                for(int i = 0;i<count;i++) {
+                    JSONObject item = items.getJSONObject(i);
+                    buf.append(item.getString("ROW")+",");
+                    buf.append(item.getString("name")+",");
+                    buf.append(item.getString("appid")+",");
+                    buf.append(item.getString("onlineprovider")+",");
+                    buf.append(item.getString("provider"));
+                    buf.append("\n");
+                }
+                Func.saveToFile(buf.toString(),csv);
+            }
+        }else{
+            red(result.getString("message"));
+        }
+        return true;
+    }
 }

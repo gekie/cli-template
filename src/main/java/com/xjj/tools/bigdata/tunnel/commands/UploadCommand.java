@@ -280,4 +280,48 @@ public class UploadCommand extends BaseCommand {
         }
         return true;
     }
+
+    @CliMethod(group="imp",key="app",description = "导入APP Config")
+    public boolean importAppConfig(String _,String csv){
+        if(Func.isEmpty(csv)){
+            return false;
+        }
+        File file = new File(csv);
+        if(!file.exists()){
+            red(csv+"文件不存在");
+        }else{
+            String content = Func.readFile(csv);
+            String[] lines = content.split("\n");
+            for(int i =1;i<lines.length;i++){
+                if(lines[i].length()>0) {
+                    String[] ds = lines[i].split(",");
+                    String row = ds[0];
+                    String name = ds[1];
+                    String appid = ds[2];
+                    String onlineprovider = ds[3];
+                    String provider = ds[4];
+                    importNewAppid(row,name,appid,onlineprovider,provider);
+                }
+            }
+        }
+        return true;
+    }
+
+    private void importNewAppid(String row,String name,String appid,String onlineprovider,String provider){
+        PostParam pm = new PostParam();
+        JSONObject vo = new JSONObject();
+        vo.put("appid",appid);
+        vo.put("rowKey",row);
+        vo.put("name",name);
+        vo.put("provider",provider);
+        vo.put("onlineprovider",onlineprovider);
+        vo.put("newapp","true");
+        pm.addParam("model",vo.toString());
+        JSONObject result = RESTfulAgent.getInstance().loadObject(GlobalValue.Create_Repository_API,pm);
+        if(result.getInt("errorCode")==0){
+            yellow("成功创建数据仓库："+name+",AppID："+appid+",SecrectKey："+result.getString("rowKey"));
+        }else{
+            red("创建数据仓库<"+appid+">失败："+result.getString("message"));
+        }
+    }
 }

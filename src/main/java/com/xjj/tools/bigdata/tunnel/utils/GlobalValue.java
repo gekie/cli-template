@@ -18,20 +18,23 @@ public class GlobalValue {
     public static String sessionId;
     public static HashMap<String,JSONObject> tables;
     public static String COMMAND_HISTORY_FILE = "";
+    public static String loginURL = Config.getInstance().getString("login_url");
     public static String endPoint = Config.getInstance().getString("end_point");
-    public static String MY_TABLE_API=endPoint+"bigdata/loadMyAppConfig";
-    public static String EXECUTE_SQL_API=endPoint+"bigdata/excuteSQL";
-    public static String QUERY_SQL_API=endPoint+"bigdata/querySQL";
-    public static String Create_Repository_API=endPoint+"bigdata/saveConfig";
-    public static String Drop_Repository_API=endPoint+"bigdata/removeConfig";
-    public static String DATA_UPLOAD_API=endPoint+"bigdata/ReceiveDataFile";
-    public static String SHOW_UPLOAD_LOG=endPoint+"bigdata/showImportDataLog";
-    public static String exportCSV_API=endPoint+"bigdata/exportCSV";
+    public static String MY_TABLE_API;
+    public static String EXECUTE_SQL_API;
+    public static String QUERY_SQL_API;
+    public static String Create_Repository_API;
+    public static String Drop_Repository_API;
+    public static String DATA_UPLOAD_API;
+    public static String SHOW_UPLOAD_LOG;
+    public static String exportCSV_API;
+
     public static int printMaxRow = Config.getInstance().getInteger("print_max_row");
     public static boolean isLogin(){
         return ticket!=null&&ticket.trim().length()>0;
     }
     public static void init(){
+        resetApi();
         File directory = new File("");//设定为当前文件夹
         String path = directory.getAbsolutePath();
         if(path.indexOf(File.separator+"bin")!=-1)
@@ -45,6 +48,16 @@ public class GlobalValue {
 
             }
         }
+    }
+    public static void resetApi(){
+        MY_TABLE_API=endPoint+"bigdata/loadMyAppConfig";
+        EXECUTE_SQL_API=endPoint+"bigdata/excuteSQL";
+        QUERY_SQL_API=endPoint+"bigdata/querySQL";
+        Create_Repository_API=endPoint+"bigdata/saveConfig";
+        Drop_Repository_API=endPoint+"bigdata/removeConfig";
+        DATA_UPLOAD_API=endPoint+"bigdata/ReceiveDataFile";
+        SHOW_UPLOAD_LOG=endPoint+"bigdata/showImportDataLog";
+        exportCSV_API=endPoint+"bigdata/exportCSV";
     }
     public static void reset(){
         ticket = "";

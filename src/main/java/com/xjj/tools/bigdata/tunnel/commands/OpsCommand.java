@@ -7,6 +7,9 @@ import com.xjj.tools.bigdata.tunnel.utils.RESTfulAgent;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 @CliCompent
 public class OpsCommand extends BaseCommand {
     @CliMethod(group = "show",description = "查看接入的主机列表",calcRequestTime = false)
@@ -171,5 +174,64 @@ public class OpsCommand extends BaseCommand {
         }else{
             red("主机:"+ip+",端口:"+port+"没有接入");
         }
+    }
+
+    @CliMethod(group = "show",description = "查看主机月访问情况")
+    public boolean pv(String parent,String ip,String port,String month){
+        if(Func.isEmpty(ip)){
+            return false;
+        }
+        if(Func.isEmpty(port)){
+            return false;
+        }
+        if(Func.isEmpty(month)){
+            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM");
+            month = df.format(new Date());
+        }
+        String url = GlobalValue.endPoint+"server/loadHostMonthLog?day="+month+"&host="+ip+"&webport="+port;
+        JSONObject result = RESTfulAgent.getInstance().getObject(url);
+        if(result.getInt("errorCode")==0){
+            ConsoleTable table = new ConsoleTable(4,false,-1);
+            table.appendRow("日期;访问量;人数;流量");
+            JSONArray items= result.getJSONArray("items");
+            for(int i=0;i<items.length();i++){
+                JSONObject item = items.getJSONObject(i);
+                table.appendRow();
+                table.appendColum(item.get("day"));
+                table.appendColum(item.get("pv"));
+                table.appendColum(item.get("uv"));
+
+                if(item.has("size")) {
+                    String s = item.get("size").toString();
+                    if(!s.equals("null"))
+                        table.appendColum(Func.getFileSize(Long.parseLong(s)));
+                }
+            }
+            yellow(table.toString());
+        }else{
+            red(result.getString("message"));
+        }
+        return true;
+    }
+
+    @CliMethod(description = "通知某台主机上传某天的日志文件")
+    public boolean putlog(String ip,String port,String day){
+        if(Func.isEmpty(ip)){
+            return false;
+        }
+        if(Func.isEmpty(port)){
+            return false;
+        }
+        if(Func.isEmpty(day)){
+            day = (new SimpleDateFormat("yyyy-MM-dd")).format(new Date());
+        }
+        String url = GlobalValue.endPoint+"server/notifyHostLogUpload?day="+day+"&host="+ip+"&webport="+port;
+        JSONObject result = RESTfulAgent.getInstance().getObject(url);
+        if(result.getInt("errorCode")==0){
+            yellow(result.getString("message"));
+        }else{
+            red(result.getString("message"));
+        }
+        return true;
     }
 }

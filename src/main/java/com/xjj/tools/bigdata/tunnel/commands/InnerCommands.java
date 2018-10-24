@@ -30,7 +30,7 @@ public class InnerCommands extends BaseCommand{
             //err("指令格式不正确，参考：login <account> <password>");
             return false;
         }
-        String checkTokenAction = Config.getInstance().getString("login_url");
+        String checkTokenAction =GlobalValue.loginURL;
         if(checkTokenAction!=null&&checkTokenAction.trim().length()>0){
             JSONObject pm = new JSONObject();
             pm.put("appid","16101_10");
@@ -194,7 +194,7 @@ public class InnerCommands extends BaseCommand{
                 print("\t"+entry.getKey(), Ansi.Color.CYAN);
                 Parameter[] ps = bean.getMethod().getParameters();
                 for (int i = 0; i < ps.length; i++) {
-                    if(i>1) {
+                    if(i>=1) {
                         print(" "+ps[i].getName(), Ansi.Color.YELLOW);
                         print(":");
                         print("<"+ps[i].getName()+">", Ansi.Color.GREEN);
@@ -303,7 +303,7 @@ public class InnerCommands extends BaseCommand{
         ConsoleTable table = new ConsoleTable(2,false,-1);
         table.appendRow("配置项;配置值");
         table.appendRow(new Object[]{"api_end_point",GlobalValue.endPoint});
-        table.appendRow(new Object[]{"login_url",Config.getInstance().getString("login_url")});
+        table.appendRow(new Object[]{"login_url",GlobalValue.loginURL});
         table.appendRow(new Object[]{"shell_commands_package",Config.getInstance().getString("shell_commands_package")});
         table.appendRow(new Object[]{"print_max_row",Config.getInstance().getInteger("print_max_row")});
         table.appendRow(new Object[]{"command_history_max_size",Config.getInstance().getInteger("command_history_max_size")});
@@ -347,6 +347,27 @@ public class InnerCommands extends BaseCommand{
             }
         });
 
+        return true;
+    }
+
+    @CliMethod(group="set",key="endpoint",description = "重新设置endPoint",checkSession = false)
+    public boolean endpoint(String parent,String apiurl){
+        if(Func.isEmpty(apiurl)){
+            return false;
+        }
+        println(apiurl);
+        GlobalValue.endPoint = apiurl;
+        GlobalValue.resetApi();
+        GlobalValue.reset();
+        return true;
+    }
+    @CliMethod(group="set",key="loginapi",description = "重新设置Login_url",checkSession = false)
+    public boolean loginapi(String parent,String apiurl){
+        if(Func.isEmpty(apiurl)){
+            return false;
+        }
+        GlobalValue.loginURL = apiurl;
+        GlobalValue.reset();
         return true;
     }
 }
