@@ -314,12 +314,22 @@ public class UploadCommand extends BaseCommand {
         vo.put("rowKey",row);
         vo.put("name",name);
         vo.put("provider",provider);
-        vo.put("onlineprovider",onlineprovider);
+        vo.put("onlineprovider","kafka");
         vo.put("newapp","true");
         pm.addParam("model",vo.toString());
         JSONObject result = RESTfulAgent.getInstance().loadObject(GlobalValue.Create_Repository_API,pm);
-        if(result.getInt("errorCode")==0){
-            yellow("成功创建数据仓库："+name+",AppID："+appid+",SecrectKey："+result.getString("rowKey"));
+        if(result.getInt("errorCode")==0) {
+            yellow("成功创建数据仓库：" + name + ",AppID：" + appid + ",SecrectKey：" + result.getString("rowKey"));
+        }else if(result.getInt("errorCode")==9001){
+            vo.put("newapp","false");
+            pm = new PostParam();
+            pm.addParam("model",vo.toString());
+            result = RESTfulAgent.getInstance().loadObject(GlobalValue.Create_Repository_API,pm);
+            if(result.getInt("errorCode")==0){
+                yellow("成功更新数据仓库：" + name + ",AppID：" + appid + ",SecrectKey：" + result.getString("rowKey"));
+            }else{
+                red("更新数据仓库<"+appid+">失败："+result.getString("message"));
+            }
         }else{
             red("创建数据仓库<"+appid+">失败："+result.getString("message"));
         }
