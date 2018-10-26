@@ -80,14 +80,14 @@ public class SQLCommand extends BaseCommand{
     private ConsoleTable getConsoleTable(List<JSONObject> heads,JSONObject item){
         ConsoleTable table = null;
         if(heads!=null){
-            table = new ConsoleTable(heads.size(),false,10);
+            table = new ConsoleTable(heads.size(),false,-1);
             table.appendRow();
             for(JSONObject obj:heads){
                 String field = obj.getString("field");
                 table.appendColum(field);
             }
         }else{
-            table = new ConsoleTable(item.keySet().size(),false,10);
+            table = new ConsoleTable(item.keySet().size(),false,-1);
             table.appendRow();
             Iterator<String> keys = item.keys();
             while(keys.hasNext()){
